@@ -1,776 +1,519 @@
-
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>SCS GAN + MoYu 3×3 Stock</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCS 3x3 Stock Dashboard</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    background: #090b0f;
-    color: #f5f7fa;
-    font-family:
-        Inter,
-        Arial,
-        Helvetica,
-        sans-serif;
-}
-
-.container {
-    width: min(1200px, 94vw);
-    margin: 35px auto 60px;
-}
-
-h1 {
-    margin: 0;
-    font-size: 32px;
-}
-
-.subtitle {
-    color: #8f98a8;
-    margin-top: 7px;
-    margin-bottom: 25px;
-}
-
-.toolbar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-bottom: 18px;
-}
-
-button {
-    border: 0;
-    border-radius: 10px;
-    padding: 11px 17px;
-    font-weight: 700;
-    cursor: pointer;
-    background: white;
-    color: #111;
-}
-
-button:disabled {
-    opacity: .5;
-    cursor: wait;
-}
-
-.stats {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 25px;
-}
-
-.stat {
-    background: #151920;
-    border: 1px solid #272d38;
-    border-radius: 12px;
-    padding: 12px 15px;
-}
-
-.stat span {
-    color: #7e8795;
-    font-size: 12px;
-}
-
-.stat strong {
-    display: block;
-    font-size: 20px;
-    margin-top: 3px;
-}
-
-.section {
-    margin-top: 35px;
-}
-
-.section-title {
-    font-size: 22px;
-    margin-bottom: 12px;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns:
-        repeat(auto-fill, minmax(280px, 1fr));
-    gap: 12px;
-}
-
-.card {
-    background: #151920;
-    border: 1px solid #272d38;
-    border-radius: 15px;
-    padding: 16px;
-    transition: .15s;
-}
-
-.card:hover {
-    border-color: #495363;
-    transform: translateY(-1px);
-}
-
-.name {
-    font-weight: 700;
-    line-height: 1.4;
-}
-
-.price {
-    color: #8992a1;
-    font-size: 13px;
-    margin-top: 4px;
-}
-
-.stock {
-    margin-top: 13px;
-    font-size: 25px;
-    font-weight: 800;
-}
-
-.good {
-    color: #50d88a;
-}
-
-.low {
-    color: #ffbd45;
-}
-
-.one {
-    color: #ff4d5d;
-    animation: pulse .8s infinite alternate;
-}
-
-.out {
-    color: #777e8a;
-}
-
-.unknown {
-    color: #e6bf4c;
-    font-size: 15px;
-}
-
-a {
-    display: inline-block;
-    margin-top: 11px;
-    color: #8ebcff;
-    text-decoration: none;
-    font-size: 13px;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-#error {
-    display: none;
-    padding: 15px;
-    border-radius: 12px;
-    background: #291619;
-    border: 1px solid #65353b;
-    color: #ff9fa7;
-    line-height: 1.5;
-    margin-bottom: 20px;
-}
-
-#loading {
-    color: #aeb6c4;
-    padding: 25px 0;
-}
-
-.small {
-    color: #707988;
-    font-size: 12px;
-    margin-top: 10px;
-}
-
-@keyframes pulse {
-    from {
-        transform: scale(1);
+    * {
+        box-sizing: border-box;
     }
 
-    to {
-        transform: scale(1.07);
+    html {
+        scroll-behavior: smooth;
     }
-}
+
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #ffffff;
+        color: #111111;
+    }
+
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #ffffff;
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .header-inner {
+        max-width: 1400px;
+        margin: auto;
+        padding: 18px 24px 14px;
+    }
+
+    .title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .subtitle {
+        margin-top: 5px;
+        color: #666666;
+        font-size: 14px;
+    }
+
+    nav {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+    }
+
+    nav button,
+    .filter-button,
+    .version-button {
+        border: 1px solid #cccccc;
+        background: #ffffff;
+        color: #111111;
+        padding: 8px 13px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    nav button:hover,
+    .filter-button:hover,
+    .version-button:hover {
+        background: #f2f2f2;
+    }
+
+    nav button.active,
+    .filter-button.active,
+    .version-button.active {
+        background: #111111;
+        color: #ffffff;
+        border-color: #111111;
+    }
+
+    main {
+        max-width: 1400px;
+        margin: auto;
+        padding: 24px;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    input,
+    select {
+        border: 1px solid #cccccc;
+        background: #ffffff;
+        color: #111111;
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    #search {
+        min-width: 280px;
+        flex: 1;
+    }
+
+    .status-bar {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 18px;
+        padding: 12px 14px;
+        border: 1px solid #dddddd;
+        border-radius: 7px;
+        background: #fafafa;
+        font-size: 14px;
+    }
+
+    .status-text {
+        color: #555555;
+    }
+
+    .refresh-button {
+        margin-left: auto;
+        border: 1px solid #111111;
+        background: #111111;
+        color: white;
+        border-radius: 6px;
+        padding: 8px 13px;
+        cursor: pointer;
+    }
+
+    .section {
+        display: none;
+    }
+
+    .section.active {
+        display: block;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 15px;
+        margin: 25px 0 14px;
+    }
+
+    .section-title h2 {
+        margin: 0;
+        font-size: 21px;
+    }
+
+    .section-title span {
+        color: #777777;
+        font-size: 13px;
+    }
+
+    .version-bar {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+    }
+
+    .product {
+        border: 1px solid #dddddd;
+        border-radius: 8px;
+        padding: 15px;
+        background: #ffffff;
+        transition: border-color 0.15s;
+    }
+
+    .product:hover {
+        border-color: #999999;
+    }
+
+    .brand {
+        color: #777777;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: 7px;
+    }
+
+    .product-name {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: 10px;
+    }
+
+    .product-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 13px;
+    }
+
+    .meta {
+        border: 1px solid #eeeeee;
+        border-radius: 5px;
+        padding: 8px;
+    }
+
+    .meta-label {
+        color: #777777;
+        font-size: 11px;
+        margin-bottom: 3px;
+    }
+
+    .meta-value {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .stock {
+        margin: 10px 0 13px;
+        padding: 9px 10px;
+        border-radius: 5px;
+        background: #f5f5f5;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .stock.good {
+        background: #f1f1f1;
+    }
+
+    .stock.low {
+        background: #eeeeee;
+    }
+
+    .stock.zero {
+        background: #e4e4e4;
+    }
+
+    .stock.unknown {
+        background: #fafafa;
+        color: #777777;
+    }
+
+    .open-link {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        border: 1px solid #cccccc;
+        color: #111111;
+        padding: 8px;
+        border-radius: 5px;
+        font-size: 13px;
+    }
+
+    .open-link:hover {
+        background: #f2f2f2;
+    }
+
+    .empty {
+        padding: 35px;
+        text-align: center;
+        color: #777777;
+        border: 1px dashed #cccccc;
+        border-radius: 7px;
+    }
+
+    .error {
+        color: #8a0000;
+        background: #fff7f7;
+        border: 1px solid #e3caca;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+
+    footer {
+        max-width: 1400px;
+        margin: 40px auto;
+        padding: 0 24px;
+        color: #888888;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 650px) {
+        main {
+            padding: 15px;
+        }
+
+        .header-inner {
+            padding: 15px;
+        }
+
+        #search {
+            min-width: 100%;
+        }
+
+        .refresh-button {
+            margin-left: 0;
+        }
+    }
 </style>
+
 </head>
 
 <body>
 
-<div class="container">
+<header>
+    <div class="header-inner">
 
-    <h1>SpeedCubeShop — GAN + MoYu 3×3</h1>
 
-    <div class="subtitle">
-        Current and recent generations — old generations filtered out
+    <div class="title-row">
+        <div>
+            <h1>SCS 3x3 Stock</h1>
+            <div class="subtitle">
+                SpeedCubeShop · GAN + MoYu · current/recent 3x3s
+            </div>
+        </div>
     </div>
 
-    <div class="toolbar">
-
-        <button id="refreshButton"
-                onclick="startScan()">
-            Scan SCS
-        </button>
-
-        <button onclick="location.reload()">
-            Reload
-        </button>
-
-    </div>
-
-    <div class="stats">
-
-        <div class="stat">
-            <span>GAN</span>
-            <strong id="ganCount">—</strong>
-        </div>
-
-        <div class="stat">
-            <span>MoYu</span>
-            <strong id="moyuCount">—</strong>
-        </div>
-
-        <div class="stat">
-            <span>In stock</span>
-            <strong id="inStockCount">—</strong>
-        </div>
-
-        <div class="stat">
-            <span>1 left</span>
-            <strong id="oneLeftCount">—</strong>
-        </div>
-
-    </div>
-
-    <div id="loading">
-        Discovering SCS products...
-    </div>
-
-    <div id="error"></div>
-
-    <div class="section">
-
-        <div class="section-title">
-            GAN
-        </div>
-
-        <div
-            class="grid"
-            id="ganGrid">
-        </div>
-
-    </div>
-
-    <div class="section">
-
-        <div class="section-title">
-            MoYu
-        </div>
-
-        <div
-            class="grid"
-            id="moyuGrid">
-        </div>
-
-    </div>
-
-    <div class="small">
-        Exact quantity is shown only when SCS exposes
-        inventory quantity for that product/variant.
-    </div>
+    <nav>
+        <button class="nav-button active" data-section="home">Home</button>
+        <button class="nav-button" data-section="gan">GAN</button>
+        <button class="nav-button" data-section="moyu">MoYu</button>
+        <button class="nav-button" data-section="versions">Versions</button>
+        <button class="nav-button" data-section="prices">Prices</button>
+    </nav>
 
 </div>
 
 
+</header>
+
+<main>
+
+
+<div class="toolbar">
+    <input id="search" type="search"
+           placeholder="Search GAN 16, V11, PB WR, Super WeiLong...">
+
+    <select id="sort">
+        <option value="version-desc">Newest version</option>
+        <option value="name">Name</option>
+        <option value="price-low">Price: low → high</option>
+        <option value="price-high">Price: high → low</option>
+        <option value="stock-high">Stock: high → low</option>
+        <option value="stock-low">Stock: low → high</option>
+    </select>
+</div>
+
+<div class="status-bar">
+    <span id="scanStatus" class="status-text">
+        Loading SCS products...
+    </span>
+
+    <span id="countStatus" class="status-text">
+        —
+    </span>
+
+    <button class="refresh-button" id="refreshButton">
+        Refresh
+    </button>
+</div>
+
+<div id="errorBox"></div>
+
+<!-- HOME -->
+<section id="home" class="section active">
+    <div class="section-title">
+        <h2>All 3x3s</h2>
+        <span>GAN + MoYu</span>
+    </div>
+
+    <div class="version-bar" id="homeFilters"></div>
+    <div class="product-grid" id="homeGrid"></div>
+</section>
+
+<!-- GAN -->
+<section id="gan" class="section">
+    <div class="section-title">
+        <h2>GAN 3x3</h2>
+        <span id="ganCount"></span>
+    </div>
+
+    <div class="version-bar" id="ganVersions"></div>
+    <div class="product-grid" id="ganGrid"></div>
+</section>
+
+<!-- MOYU -->
+<section id="moyu" class="section">
+    <div class="section-title">
+        <h2>MoYu 3x3</h2>
+        <span id="moyuCount"></span>
+    </div>
+
+    <div class="version-bar" id="moyuVersions"></div>
+    <div class="product-grid" id="moyuGrid"></div>
+</section>
+
+<!-- VERSIONS -->
+<section id="versions" class="section">
+    <div class="section-title">
+        <h2>Versions</h2>
+        <span>Jump directly to a generation</span>
+    </div>
+
+    <div class="version-bar" id="allVersions"></div>
+    <div class="product-grid" id="versionGrid"></div>
+</section>
+
+<!-- PRICES -->
+<section id="prices" class="section">
+    <div class="section-title">
+        <h2>Prices</h2>
+        <span>Lowest prices first</span>
+    </div>
+
+    <div class="product-grid" id="priceGrid"></div>
+</section>
+
+
+</main>
+
+<footer>
+    Stock data is read from publicly exposed SpeedCubeShop product data.
+    Exact quantities are only displayed when SCS exposes an actual numeric
+    inventory value. The dashboard never guesses a quantity from an
+    “In stock” label.
+</footer>
+
 <script>
+"use strict";
 
-/* ======================================================
+/* =========================================================
    CONFIG
-====================================================== */
+========================================================= */
 
-const SCS =
-    "https://speedcubeshop.com";
+const SCS = "https://speedcubeshop.com";
+
+const COLLECTIONS = [
+    {
+        brand: "GAN",
+        url: `${SCS}/collections/gan-magnetic-cubes/products.json`
+    },
+    {
+        brand: "MoYu",
+        url: `${SCS}/collections/moyu-cube-3x3/products.json`
+    }
+];
 
 /*
-   These are SCS's brand/product collections.
+    We want modern/current/recent 3x3s.
 
-   We discover products from these collections instead
-   of maintaining a giant list of fragile handles.
+    These exclusions stop very old products from filling the
+    dashboard while still allowing older-but-relevant models
+    such as GAN 12/14/15 and MoYu V9/V10/V11.
 */
+const OLD_GAN = [
+    "gan 10",
+    "gan 9",
+    "gan 8",
+    "gan 7",
+    "gan 6",
+    "gan 5",
+    "gan 4",
+    "gan 3"
+];
 
-const COLLECTIONS = {
+const OLD_MOYU = [
+    "rs3 m 2020",
+    "rs3m 2020",
+    "weilong gts",
+    "weilong gts2",
+    "weilong gts3",
+    "weilong gts2 m",
+    "weilong gts3 m"
+];
 
-    GAN:
-        "/collections/gan-magnetic-cubes",
+/* =========================================================
+   STATE
+========================================================= */
 
-    MoYu:
-        "/collections/moyu-cube-3x3"
+let products = [];
+let activeSection = "home";
+let activeBrandVersion = {
+    GAN: "ALL",
+    MoYu: "ALL"
 };
 
+let selectedGlobalVersion = "ALL";
 
-/*
-==========================================================
-   AGE FILTER
-==========================================================
+/* =========================================================
+   HELPERS
+========================================================= */
 
-We DON'T want only the newest models.
-
-We want CURRENT + RECENT.
-
-Therefore:
-
-GAN:
-    Include 12 and newer generations,
-    plus V-series/current models.
-
-MoYu:
-    Include V5 and newer RS3M generations,
-    V9+ WeiLong,
-    V5+ AoLong,
-    current Super series,
-    PB WR,
-    etc.
-
-This deliberately excludes things such as:
-    GAN 11
-    GAN 10
-    RS3 M 2020
-    very old WeiLongs
-==========================================================
-*/
-
-
-function isWantedGAN(title) {
-
-    const t =
-        title.toLowerCase();
-
-    if (!t.includes("3x3"))
-        return false;
-
-    /*
-       Explicitly reject old generations.
-    */
-
-    if (
-        /gan\s*(?:10|11)\b/i.test(t)
-    )
-        return false;
-
-    /*
-       Accept:
-       GAN 12+
-       GAN 15
-       GAN 16
-       GAN 17
-       GAN V100
-       GAN i-series current products
-       current limited editions
-    */
-
-    if (
-        /gan\s*(?:1[2-9]|2[0-9])\b/i.test(t)
-    )
-        return true;
-
-    if (
-        /\bgan\s*v\d+/i.test(t)
-    )
-        return true;
-
-    if (
-        /\bgan\s*i\d+/i.test(t)
-    )
-        return true;
-
-    if (
-        /\bgan\s*356\s*me\b/i.test(t)
-    )
-        return true;
-
-    return false;
-}
-
-
-function isWantedMoYu(title) {
-
-    const t =
-        title.toLowerCase();
-
-    if (!t.includes("3x3"))
-        return false;
-
-    /*
-       Remove very old RS3M generations.
-    */
-
-    if (
-        /rs3\s*m\s*2020/i.test(t)
-    )
-        return false;
-
-    /*
-       Current RS3M V5+.
-    */
-
-    if (
-        /rs3\s*m.*v[5-9]\b/i.test(t)
-    )
-        return true;
-
-    /*
-       Super RS3M current models.
-    */
-
-    if (
-        /super\s*rs3\s*m/i.test(t)
-    )
-        return true;
-
-    /*
-       Current WeiLong:
-       V9, V10, V11 and newer.
-    */
-
-    if (
-        /weilong.*v(?:9|10|11|12|13|14|15|16|17|18|19|20)\b/i.test(t)
-    )
-        return true;
-
-    /*
-       Current Super WeiLong.
-    */
-
-    if (
-        /super\s*weilong/i.test(t)
-    )
-        return true;
-
-    /*
-       PB WR.
-    */
-
-    if (
-        /pb\s*wr/i.test(t)
-    )
-        return true;
-
-    /*
-       Current AoLong V5+.
-    */
-
-    if (
-        /aolong.*v[5-9]\b/i.test(t)
-    )
-        return true;
-
-    /*
-       Other clearly recent MoYu 3x3 models.
-    */
-
-    if (
-        /moyu.*3x3.*v[5-9]\b/i.test(t)
-    )
-        return true;
-
-    return false;
-}
-
-
-/* ======================================================
-   FETCH COLLECTION PRODUCTS
-====================================================== */
-
-async function fetchCollectionProducts(
-    collection
-) {
-
-    /*
-       Shopify's collection JSON endpoint.
-
-       limit=250 gives us enough room for the
-       current collections.
-    */
-
-    const url =
-        `${SCS}${collection}/products.json` +
-        `?limit=250&_=${Date.now()}`;
-
-    const response =
-        await fetch(
-            url,
-            {
-                cache: "no-store"
-            }
-        );
-
-    if (!response.ok) {
-
-        throw new Error(
-            `Collection request failed: HTTP ${response.status}`
-        );
-    }
-
-    const data =
-        await response.json();
-
-    return data.products || [];
-}
-
-
-/* ======================================================
-   GET ALL WANTED PRODUCTS
-====================================================== */
-
-async function discoverProducts() {
-
-    const result = [];
-
-    for (
-        const [brand, collection]
-        of Object.entries(COLLECTIONS)
-    ) {
-
-        const products =
-            await fetchCollectionProducts(
-                collection
-            );
-
-        for (const product of products) {
-
-            const title =
-                product.title || "";
-
-            let wanted = false;
-
-            if (brand === "GAN") {
-
-                wanted =
-                    isWantedGAN(title);
-
-            } else {
-
-                wanted =
-                    isWantedMoYu(title);
-            }
-
-            if (!wanted)
-                continue;
-
-            /*
-               The Shopify collection JSON normally gives
-               us the handle directly.
-            */
-
-            result.push({
-
-                brand,
-
-                title,
-
-                handle:
-                    product.handle,
-
-                url:
-                    `${SCS}/products/${product.handle}`,
-
-                price:
-                    product.variants?.[0]?.price ??
-                    null
-
-            });
-        }
-    }
-
-    /*
-       Remove accidental duplicates.
-    */
-
-    const unique =
-        new Map();
-
-    for (const product of result) {
-
-        unique.set(
-            product.handle,
-            product
-        );
-    }
-
-    return [...unique.values()];
-}
-
-
-/* ======================================================
-   PRODUCT JSON
-====================================================== */
-
-async function fetchProduct(
-    product
-) {
-
-    const url =
-        `${SCS}/products/${product.handle}.js` +
-        `?_=${Date.now()}`;
-
-    const response =
-        await fetch(
-            url,
-            {
-                cache: "no-store"
-            }
-        );
-
-    if (!response.ok) {
-
-        throw new Error(
-            `HTTP ${response.status}`
-        );
-    }
-
-    return await response.json();
-}
-
-
-/* ======================================================
-   INVENTORY EXTRACTION
-====================================================== */
-
-function extractInventory(
-    productData
-) {
-
-    const variants =
-        productData.variants || [];
-
-    /*
-       Shopify sometimes gives inventory_quantity
-       directly.
-
-       If ANY variant has it, use those values.
-    */
-
-    const quantities = [];
-
-    for (
-        const variant
-        of variants
-    ) {
-
-        if (
-            typeof variant.inventory_quantity ===
-            "number"
-        ) {
-
-            quantities.push(
-                Math.max(
-                    0,
-                    variant.inventory_quantity
-                )
-            );
-        }
-    }
-
-    if (quantities.length) {
-
-        return quantities.reduce(
-            (a, b) => a + b,
-            0
-        );
-    }
-
-
-    /*
-       Some products only expose availability.
-
-       We deliberately return UNKNOWN instead of
-       pretending "In stock" means a particular number.
-    */
-
-    return null;
-}
-
-
-/* ======================================================
-   CREATE CARD
-====================================================== */
-
-function createCard(
-    product
-) {
-
-    const card =
-        document.createElement("div");
-
-    card.className =
-        "card";
-
-    const id =
-        "stock-" +
-        safeID(product.handle);
-
-    card.innerHTML = `
-
-        <div class="name">
-            ${escapeHTML(product.title)}
-        </div>
-
-        <div class="price">
-            ${
-                product.price
-                    ? "$" + product.price
-                    : ""
-            }
-        </div>
-
-        <div
-            id="${id}"
-            class="stock unknown">
-            Checking...
-        </div>
-
-        <a
-            href="${product.url}"
-            target="_blank"
-            rel="noopener">
-            View on SpeedCubeShop →
-        </a>
-    `;
-
-    return card;
-}
-
-
-/* ======================================================
-   SAFE ID
-====================================================== */
-
-function safeID(
-    value
-) {
-
-    return value.replace(
-        /[^a-zA-Z0-9_-]/g,
-        "_"
-    );
-}
-
-
-/* ======================================================
-   ESCAPE HTML
-====================================================== */
-
-function escapeHTML(
-    value
-) {
-
-    return String(value)
+function escapeHTML(value) {
+    return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -778,328 +521,1230 @@ function escapeHTML(
         .replaceAll("'", "&#039;");
 }
 
-
-/* ======================================================
-   UPDATE CARD
-====================================================== */
-
-function updateCard(
-    product,
-    quantity
-) {
-
-    const element =
-        document.getElementById(
-            "stock-" +
-            safeID(product.handle)
-        );
-
-    if (!element)
-        return;
-
-    if (quantity === null) {
-
-        element.textContent =
-            "QUANTITY UNKNOWN";
-
-        element.className =
-            "stock unknown";
-
-        return;
-    }
-
-    if (quantity === 0) {
-
-        element.textContent =
-            "OUT OF STOCK";
-
-        element.className =
-            "stock out";
-
-        return;
-    }
-
-    element.textContent =
-        quantity === 1
-            ? "1 LEFT"
-            : `${quantity} LEFT`;
-
-    if (quantity === 1) {
-
-        element.className =
-            "stock one";
-
-    } else if (quantity <= 3) {
-
-        element.className =
-            "stock low";
-
-    } else {
-
-        element.className =
-            "stock good";
-    }
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function normalize(text) {
+    return String(text || "")
+        .toLowerCase()
+        .replace(/[–—]/g, "-")
+        .replace(/\s+/g, " ")
+        .trim();
+}
 
-/* ======================================================
-   CHECK PRODUCT
-====================================================== */
+function is3x3(title) {
+    const t = normalize(title);
 
-async function checkProduct(
-    product
-) {
+    return (
+        /\b3x3\b/.test(t) ||
+        /\b3 x 3\b/.test(t) ||
+        /\b3x3x3\b/.test(t)
+    );
+}
 
-    try {
+function isOldProduct(product) {
+    const t = normalize(product.title);
 
-        const data =
-            await fetchProduct(
-                product
+    if (product.brand === "GAN") {
+        return OLD_GAN.some(x => t.includes(x));
+    }
+
+    if (product.brand === "MoYu") {
+        return OLD_MOYU.some(x => t.includes(x));
+    }
+
+    return false;
+}
+
+/*
+    Extract a useful version number.
+
+    GAN:
+      GAN 12
+      GAN 14
+      GAN 15
+      GAN 16
+      GAN V100
+
+    MoYu:
+      V11
+      V10
+      V9
+      V8
+      V5
+*/
+function getVersion(title, brand) {
+    const t = String(title);
+
+    if (brand === "GAN") {
+        const gan = t.match(/\bGAN\s+(\d+)\b/i);
+
+        if (gan) {
+            return {
+                number: Number(gan[1]),
+                label: `GAN ${gan[1]}`
+            };
+        }
+
+        const v = t.match(/\bV(\d+)\b/i);
+
+        if (v) {
+            return {
+                number: Number(v[1]),
+                label: `V${v[1]}`
+            };
+        }
+
+        if (/v100/i.test(t)) {
+            return {
+                number: 100,
+                label: "V100"
+            };
+        }
+    }
+
+    if (brand === "MoYu") {
+        const v = t.match(/\bV(\d+)\b/i);
+
+        if (v) {
+            return {
+                number: Number(v[1]),
+                label: `V${v[1]}`
+            };
+        }
+
+        const year = t.match(/\b20\d{2}\b/);
+
+        if (year) {
+            return {
+                number: Number(year[0]),
+                label: year[0]
+            };
+        }
+    }
+
+    return {
+        number: 0,
+        label: "Other"
+    };
+}
+
+function formatPrice(product) {
+    if (typeof product.price !== "number") {
+        return "—";
+    }
+
+    return `$${product.price.toFixed(2)}`;
+}
+
+/* =========================================================
+   STOCK EXTRACTION
+========================================================= */
+
+/*
+    SCS/Shopify can expose inventory in different places.
+
+    The old version relied almost entirely on:
+
+        variant.inventory_quantity
+
+    That is NOT reliable enough.
+
+    This extractor looks for:
+      - inventory_quantity
+      - inventoryQuantity
+      - quantity
+      - inventory
+      - stock
+      - serialized product JSON
+      - variant objects
+      - HTML embedded JSON
+
+    It deliberately ignores simple boolean "available"
+    values because true/false is NOT an exact quantity.
+*/
+
+function numericValue(value) {
+    if (
+        typeof value === "number" &&
+        Number.isFinite(value) &&
+        Number.isInteger(value) &&
+        value >= 0
+    ) {
+        return value;
+    }
+
+    if (
+        typeof value === "string" &&
+        /^\d+$/.test(value.trim())
+    ) {
+        return Number(value.trim());
+    }
+
+    return null;
+}
+
+function inspectObjectForInventory(obj, results = []) {
+    if (!obj || typeof obj !== "object") {
+        return results;
+    }
+
+    if (Array.isArray(obj)) {
+        for (const item of obj) {
+            inspectObjectForInventory(item, results);
+        }
+
+        return results;
+    }
+
+    for (const [key, value] of Object.entries(obj)) {
+        const k = normalize(key);
+
+        /*
+            Highest confidence exact inventory fields.
+        */
+        if (
+            k === "inventory_quantity" ||
+            k === "inventoryquantity" ||
+            k === "stock_quantity" ||
+            k === "stockquantity" ||
+            k === "available_quantity" ||
+            k === "availablequantity"
+        ) {
+            const n = numericValue(value);
+
+            if (n !== null) {
+                results.push({
+                    value: n,
+                    confidence: 100,
+                    key
+                });
+            }
+        }
+
+        /*
+            Some stores use "quantity" directly inside
+            inventory-related objects.
+        */
+        if (
+            (k === "quantity" || k === "stock" || k === "inventory") &&
+            typeof value !== "object"
+        ) {
+            const n = numericValue(value);
+
+            if (n !== null) {
+                results.push({
+                    value: n,
+                    confidence: 70,
+                    key
+                });
+            }
+        }
+
+        if (value && typeof value === "object") {
+            inspectObjectForInventory(value, results);
+        }
+    }
+
+    return results;
+}
+
+function parseJSONScripts(html) {
+    const objects = [];
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    for (const script of doc.querySelectorAll("script")) {
+        const text = script.textContent?.trim();
+
+        if (!text) continue;
+
+        const type = normalize(script.type);
+
+        if (
+            type.includes("json") ||
+            text.startsWith("{") ||
+            text.startsWith("[")
+        ) {
+            try {
+                objects.push(JSON.parse(text));
+            } catch {
+                /* Not valid JSON — ignore */
+            }
+        }
+    }
+
+    return objects;
+}
+
+function regexInventoryCandidates(text) {
+    const results = [];
+
+    /*
+        Exact named inventory fields.
+    */
+    const patterns = [
+        /["']inventory_quantity["']\s*:\s*(-?\d+)/gi,
+        /["']inventoryQuantity["']\s*:\s*(-?\d+)/gi,
+        /["']stock_quantity["']\s*:\s*(-?\d+)/gi,
+        /["']available_quantity["']\s*:\s*(-?\d+)/gi
+    ];
+
+    for (const regex of patterns) {
+        let match;
+
+        while ((match = regex.exec(text)) !== null) {
+            const n = Number(match[1]);
+
+            if (Number.isInteger(n) && n >= 0) {
+                results.push({
+                    value: n,
+                    confidence: 95
+                });
+            }
+        }
+    }
+
+    /*
+        SCS may place a literal "Only X left" style message
+        into the product HTML.
+    */
+    const onlyLeft = [
+        /only\s+(\d+)\s+left/gi,
+        /(\d+)\s+left\s+in\s+stock/gi,
+        /(\d+)\s+available/gi
+    ];
+
+    for (const regex of onlyLeft) {
+        let match;
+
+        while ((match = regex.exec(text)) !== null) {
+            const n = Number(match[1]);
+
+            if (Number.isInteger(n) && n >= 0) {
+                results.push({
+                    value: n,
+                    confidence: 80
+                });
+            }
+        }
+    }
+
+    return results;
+}
+
+/*
+    Get exact inventory from a product JSON endpoint.
+*/
+async function extractStockFromJSONEndpoint(handle) {
+    const urls = [
+        `${SCS}/products/${handle}.js`,
+        `${SCS}/products/${handle}.json`
+    ];
+
+    const candidates = [];
+
+    for (const url of urls) {
+        try {
+            const response = await fetch(
+                url,
+                {
+                    cache: "no-store",
+                    credentials: "omit"
+                }
             );
 
-        return extractInventory(
-            data
+            if (!response.ok) continue;
+
+            const contentType =
+                response.headers.get("content-type") || "";
+
+            const raw = await response.text();
+
+            /*
+                First try direct JSON.
+            */
+            try {
+                const data = JSON.parse(raw);
+
+                inspectObjectForInventory(data, candidates);
+
+                /*
+                    Also inspect variants specifically.
+                */
+                if (Array.isArray(data.variants)) {
+                    for (const variant of data.variants) {
+                        inspectObjectForInventory(
+                            variant,
+                            candidates
+                        );
+                    }
+                }
+            } catch {
+                /*
+                    It may still contain serialized data.
+                */
+
+                candidates.push(
+                    ...regexInventoryCandidates(raw)
+                );
+            }
+
+            /*
+                Regex is useful even if JSON parsing succeeded.
+            */
+            candidates.push(
+                ...regexInventoryCandidates(raw)
+            );
+
+        } catch {
+            /* Continue to the next source. */
+        }
+    }
+
+    return chooseBestStock(candidates);
+}
+
+/*
+    Fetch the actual product HTML as a second source.
+
+    This is important because some Shopify stores expose
+    inventory in embedded page data even when the normal
+    product .js endpoint doesn't expose it.
+*/
+async function extractStockFromHTML(handle, title) {
+    try {
+        const response = await fetch(
+            `${SCS}/products/${handle}`,
+            {
+                cache: "no-store",
+                credentials: "omit"
+            }
         );
 
-    } catch (error) {
+        if (!response.ok) {
+            return null;
+        }
 
-        console.error(
-            product.title,
-            error
+        const html = await response.text();
+
+        const candidates = [];
+
+        /*
+            Embedded JSON.
+        */
+        for (const obj of parseJSONScripts(html)) {
+            inspectObjectForInventory(obj, candidates);
+        }
+
+        /*
+            Raw HTML patterns.
+        */
+        candidates.push(
+            ...regexInventoryCandidates(html)
         );
 
+        /*
+            Product-specific context can improve extraction
+            if the page contains multiple product objects.
+        */
+        const titleIndex = html
+            .toLowerCase()
+            .indexOf(String(title).toLowerCase());
+
+        if (titleIndex >= 0) {
+            const nearby = html.slice(
+                Math.max(0, titleIndex - 10000),
+                Math.min(html.length, titleIndex + 30000)
+            );
+
+            candidates.push(
+                ...regexInventoryCandidates(nearby)
+            );
+        }
+
+        return chooseBestStock(candidates);
+
+    } catch {
         return null;
     }
 }
 
+function chooseBestStock(candidates) {
+    if (!candidates || !candidates.length) {
+        return null;
+    }
 
-/* ======================================================
-   SCAN
-====================================================== */
+    candidates.sort(
+        (a, b) =>
+            (b.confidence || 0) -
+            (a.confidence || 0)
+    );
 
-async function startScan() {
+    const bestConfidence = candidates[0].confidence;
 
-    const button =
-        document.getElementById(
-            "refreshButton"
+    /*
+        Only use candidates of the strongest confidence class.
+        This prevents random "quantity" fields from beating a
+        genuine inventory_quantity field.
+    */
+    const best = candidates.filter(
+        x => x.confidence === bestConfidence
+    );
+
+    /*
+        If several variants are exposed, don't simply pick
+        the largest number. We sum exact variant inventory.
+        That gives total units available for the product.
+    */
+    const uniqueValues = [
+        ...new Set(best.map(x => x.value))
+    ];
+
+    if (uniqueValues.length === 1) {
+        return uniqueValues[0];
+    }
+
+    /*
+        If there are multiple exact inventory values, sum them.
+    */
+    const total = best.reduce(
+        (sum, item) => sum + item.value,
+        0
+    );
+
+    return Number.isFinite(total) ? total : null;
+}
+
+/*
+    Full stock scan.
+
+    First JSON endpoints.
+    Then HTML if necessary.
+*/
+async function getExactStock(product) {
+
+    let stock =
+        await extractStockFromJSONEndpoint(
+            product.handle
         );
 
-    button.disabled = true;
+    if (stock !== null) {
+        return stock;
+    }
 
-    button.textContent =
-        "Scanning...";
+    stock =
+        await extractStockFromHTML(
+            product.handle,
+            product.title
+        );
+
+    return stock;
+}
+
+/* =========================================================
+   PRODUCT DISCOVERY
+========================================================= */
+
+async function getCollectionProducts(url) {
+    const all = [];
+
+    /*
+        Shopify collection JSON supports pagination.
+        We keep going until a page returns no products.
+    */
+    for (let page = 1; page <= 10; page++) {
+
+        const separator =
+            url.includes("?") ? "&" : "?";
+
+        const endpoint =
+            `${url}${separator}limit=250&page=${page}`;
+
+        const response = await fetch(
+            endpoint,
+            {
+                cache: "no-store",
+                credentials: "omit"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `SCS collection request failed: ${response.status}`
+            );
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data.products) ||
+            data.products.length === 0) {
+            break;
+        }
+
+        all.push(...data.products);
+
+        if (data.products.length < 250) {
+            break;
+        }
+    }
+
+    return all;
+}
+
+function prepareProduct(raw, brand) {
+
+    const title = raw.title || "";
+
+    const version = getVersion(
+        title,
+        brand
+    );
+
+    let price = null;
+
+    if (
+        Array.isArray(raw.variants) &&
+        raw.variants.length
+    ) {
+        const prices = raw.variants
+            .map(v => Number(v.price))
+            .filter(Number.isFinite);
+
+        if (prices.length) {
+            price = Math.min(...prices);
+        }
+    }
+
+    return {
+        brand,
+        id: raw.id,
+        title,
+        handle: raw.handle,
+        url: `${SCS}/products/${raw.handle}`,
+        versionNumber: version.number,
+        versionLabel: version.label,
+        price,
+        stock: null,
+        stockStatus: "Loading"
+    };
+}
+
+async function loadProducts() {
+
+    setStatus("Finding GAN and MoYu 3x3 products...");
+
+    const discovered = [];
+
+    for (const collection of COLLECTIONS) {
+        const rawProducts =
+            await getCollectionProducts(
+                collection.url
+            );
+
+        for (const raw of rawProducts) {
+
+            const product =
+                prepareProduct(
+                    raw,
+                    collection.brand
+                );
+
+            if (!is3x3(product.title)) {
+                continue;
+            }
+
+            if (isOldProduct(product)) {
+                continue;
+            }
+
+            discovered.push(product);
+        }
+    }
+
+    /*
+        Remove duplicate handles.
+    */
+    const unique = new Map();
+
+    for (const product of discovered) {
+        unique.set(
+            `${product.brand}:${product.handle}`,
+            product
+        );
+    }
+
+    products = [...unique.values()];
+
+    /*
+        Sort newest-ish first.
+    */
+    products.sort(
+        (a, b) =>
+            b.versionNumber - a.versionNumber ||
+            a.title.localeCompare(b.title)
+    );
+
+    renderAll();
+
+    /*
+        Scan stock one product at a time so SCS isn't
+        hammered with a giant burst of requests.
+    */
+    for (let i = 0; i < products.length; i++) {
+
+        setStatus(
+            `Reading exact stock: ${i + 1}/${products.length}`
+        );
+
+        const product = products[i];
+
+        try {
+            product.stock =
+                await getExactStock(product);
+
+            product.stockStatus =
+                product.stock === null
+                    ? "Unknown"
+                    : "Loaded";
+
+        } catch {
+            product.stock = null;
+            product.stockStatus = "Unknown";
+        }
+
+        renderAll();
+
+        await sleep(100);
+    }
+
+    const known =
+        products.filter(
+            p => Number.isInteger(p.stock)
+        ).length;
+
+    setStatus(
+        `Finished · ${known}/${products.length} exact quantities found`
+    );
+}
+
+/* =========================================================
+   RENDERING
+========================================================= */
+
+function setStatus(text) {
+    document.getElementById(
+        "scanStatus"
+    ).textContent = text;
+}
+
+function stockHTML(product) {
+
+    if (Number.isInteger(product.stock)) {
+
+        let cls = "good";
+
+        if (product.stock === 0) {
+            cls = "zero";
+        } else if (product.stock <= 5) {
+            cls = "low";
+        }
+
+        return `
+            <div class="stock ${cls}">
+                ${product.stock === 0
+                    ? "OUT OF STOCK"
+                    : `${product.stock} left`}
+            </div>
+        `;
+    }
+
+    return `
+        <div class="stock unknown">
+            Quantity not publicly exposed
+        </div>
+    `;
+}
+
+function productHTML(product) {
+    return `
+        <article class="product">
+
+            <div class="brand">
+                ${escapeHTML(product.brand)}
+            </div>
+
+            <div class="product-name">
+                ${escapeHTML(product.title)}
+            </div>
+
+            <div class="product-meta">
+
+                <div class="meta">
+                    <div class="meta-label">
+                        Version
+                    </div>
+                    <div class="meta-value">
+                        ${escapeHTML(product.versionLabel)}
+                    </div>
+                </div>
+
+                <div class="meta">
+                    <div class="meta-label">
+                        Price
+                    </div>
+                    <div class="meta-value">
+                        ${formatPrice(product)}
+                    </div>
+                </div>
+
+            </div>
+
+            ${stockHTML(product)}
+
+            <a
+                class="open-link"
+                href="${product.url}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Open on SpeedCubeShop
+            </a>
+
+        </article>
+    `;
+}
+
+function getFilteredProducts(extra = {}) {
+
+    const query =
+        normalize(
+            document.getElementById("search").value
+        );
+
+    let list = [...products];
+
+    if (extra.brand) {
+        list = list.filter(
+            p => p.brand === extra.brand
+        );
+    }
+
+    if (
+        extra.version &&
+        extra.version !== "ALL"
+    ) {
+        list = list.filter(
+            p => p.versionLabel === extra.version
+        );
+    }
+
+    if (
+        extra.globalVersion &&
+        extra.globalVersion !== "ALL"
+    ) {
+        list = list.filter(
+            p => p.versionLabel === extra.globalVersion
+        );
+    }
+
+    if (query) {
+        list = list.filter(p =>
+            normalize(
+                `${p.brand} ${p.title} ${p.versionLabel}`
+            ).includes(query)
+        );
+    }
+
+    const sort =
+        document.getElementById("sort").value;
+
+    if (sort === "name") {
+        list.sort(
+            (a, b) =>
+                a.title.localeCompare(b.title)
+        );
+    }
+
+    if (sort === "version-desc") {
+        list.sort(
+            (a, b) =>
+                b.versionNumber - a.versionNumber ||
+                a.title.localeCompare(b.title)
+        );
+    }
+
+    if (sort === "price-low") {
+        list.sort(
+            (a, b) =>
+                (a.price ?? Infinity) -
+                (b.price ?? Infinity)
+        );
+    }
+
+    if (sort === "price-high") {
+        list.sort(
+            (a, b) =>
+                (b.price ?? -Infinity) -
+                (a.price ?? -Infinity)
+        );
+    }
+
+    if (sort === "stock-high") {
+        list.sort(
+            (a, b) =>
+                (b.stock ?? -1) -
+                (a.stock ?? -1)
+        );
+    }
+
+    if (sort === "stock-low") {
+        list.sort(
+            (a, b) =>
+                (a.stock ?? Infinity) -
+                (b.stock ?? Infinity)
+        );
+    }
+
+    return list;
+}
+
+function renderGrid(elementId, list) {
+
+    const element =
+        document.getElementById(elementId);
+
+    if (!list.length) {
+        element.innerHTML =
+            `<div class="empty">
+                No cubes found.
+             </div>`;
+        return;
+    }
+
+    element.innerHTML =
+        list.map(productHTML).join("");
+}
+
+function makeVersionButtons(
+    containerId,
+    brand = null
+) {
+
+    const container =
+        document.getElementById(containerId);
+
+    let list =
+        brand
+            ? products.filter(
+                p => p.brand === brand
+              )
+            : products;
+
+    const versions =
+        [...new Map(
+            list
+                .filter(p =>
+                    p.versionLabel !== "Other"
+                )
+                .map(p => [
+                    p.versionLabel,
+                    p.versionNumber
+                ])
+        )];
+
+    versions.sort(
+        (a, b) => b[1] - a[1]
+    );
+
+    container.innerHTML = "";
+
+    const allButton =
+        document.createElement("button");
+
+    allButton.className =
+        "version-button active";
+
+    allButton.textContent = "All";
+
+    allButton.onclick = () => {
+
+        if (brand) {
+            activeBrandVersion[brand] =
+                "ALL";
+        } else {
+            selectedGlobalVersion =
+                "ALL";
+        }
+
+        [...container.children].forEach(
+            x => x.classList.remove("active")
+        );
+
+        allButton.classList.add("active");
+
+        renderAll();
+    };
+
+    container.appendChild(allButton);
+
+    for (const [label] of versions) {
+
+        const button =
+            document.createElement("button");
+
+        button.className =
+            "version-button";
+
+        button.textContent = label;
+
+        button.onclick = () => {
+
+            if (brand) {
+                activeBrandVersion[brand] =
+                    label;
+            } else {
+                selectedGlobalVersion =
+                    label;
+            }
+
+            [...container.children].forEach(
+                x => x.classList.remove("active")
+            );
+
+            button.classList.add("active");
+
+            renderAll();
+        };
+
+        container.appendChild(button);
+    }
+}
+
+function renderAll() {
+
+    const all =
+        getFilteredProducts();
+
+    renderGrid(
+        "homeGrid",
+        all
+    );
 
     document.getElementById(
-        "loading"
+        "countStatus"
     ).textContent =
-        "Discovering current/recent GAN and MoYu 3×3s...";
+        `${all.length} products`;
 
-    clearError();
+    /*
+        GAN
+    */
+    const gan =
+        getFilteredProducts({
+            brand: "GAN",
+            version: activeBrandVersion.GAN
+        });
+
+    renderGrid(
+        "ganGrid",
+        gan
+    );
+
+    document.getElementById(
+        "ganCount"
+    ).textContent =
+        `${gan.length} products`;
+
+    /*
+        MoYu
+    */
+    const moyu =
+        getFilteredProducts({
+            brand: "MoYu",
+            version: activeBrandVersion.MoYu
+        });
+
+    renderGrid(
+        "moyuGrid",
+        moyu
+    );
+
+    document.getElementById(
+        "moyuCount"
+    ).textContent =
+        `${moyu.length} products`;
+
+    /*
+        Versions
+    */
+    const versionProducts =
+        getFilteredProducts({
+            globalVersion:
+                selectedGlobalVersion
+        });
+
+    renderGrid(
+        "versionGrid",
+        versionProducts
+    );
+
+    /*
+        Prices
+    */
+    const prices =
+        [...all].sort(
+            (a, b) =>
+                (a.price ?? Infinity) -
+                (b.price ?? Infinity)
+        );
+
+    renderGrid(
+        "priceGrid",
+        prices
+    );
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function showSection(name) {
+
+    activeSection = name;
+
+    document
+        .querySelectorAll(".section")
+        .forEach(section => {
+            section.classList.toggle(
+                "active",
+                section.id === name
+            );
+        });
+
+    document
+        .querySelectorAll(".nav-button")
+        .forEach(button => {
+            button.classList.toggle(
+                "active",
+                button.dataset.section === name
+            );
+        });
+}
+
+document
+    .querySelectorAll(".nav-button")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            () => showSection(
+                button.dataset.section
+            )
+        );
+    });
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+document
+    .getElementById("search")
+    .addEventListener(
+        "input",
+        renderAll
+    );
+
+document
+    .getElementById("sort")
+    .addEventListener(
+        "change",
+        renderAll
+    );
+
+document
+    .getElementById("refreshButton")
+    .addEventListener(
+        "click",
+        async () => {
+            await loadProducts();
+        }
+    );
+
+/* =========================================================
+   START
+========================================================= */
+
+async function start() {
 
     try {
 
-        const products =
-            await discoverProducts();
-
-        const gan =
-            products.filter(
-                p => p.brand === "GAN"
-            );
-
-        const moyu =
-            products.filter(
-                p => p.brand === "MoYu"
-            );
-
+        await loadProducts();
 
         /*
-           Clear old cards.
+            Version controls are generated AFTER discovery.
         */
+        makeVersionButtons(
+            "ganVersions",
+            "GAN"
+        );
 
-        document.getElementById(
-            "ganGrid"
-        ).innerHTML = "";
+        makeVersionButtons(
+            "moyuVersions",
+            "MoYu"
+        );
 
-        document.getElementById(
-            "moyuGrid"
-        ).innerHTML = "";
+        makeVersionButtons(
+            "allVersions"
+        );
 
+        makeVersionButtons(
+            "homeFilters"
+        );
 
-        /*
-           Create all cards first so the UI appears
-           immediately.
-        */
-
-        for (const product of gan) {
-
-            document.getElementById(
-                "ganGrid"
-            ).appendChild(
-                createCard(product)
-            );
-        }
-
-        for (const product of moyu) {
-
-            document.getElementById(
-                "moyuGrid"
-            ).appendChild(
-                createCard(product)
-            );
-        }
-
-
-        document.getElementById(
-            "ganCount"
-        ).textContent =
-            gan.length;
-
-        document.getElementById(
-            "moyuCount"
-        ).textContent =
-            moyu.length;
-
-
-        /*
-           Now check each product.
-
-           Sequentially rather than blasting SCS with
-           dozens of simultaneous requests.
-        */
-
-        let inStock = 0;
-        let oneLeft = 0;
-
-        for (const product of products) {
-
-            const quantity =
-                await checkProduct(
-                    product
-                );
-
-            updateCard(
-                product,
-                quantity
-            );
-
-            if (
-                typeof quantity ===
-                "number"
-            ) {
-
-                if (quantity > 0)
-                    inStock++;
-
-                if (quantity === 1)
-                    oneLeft++;
-            }
-        }
-
-
-        document.getElementById(
-            "inStockCount"
-        ).textContent =
-            inStock;
-
-        document.getElementById(
-            "oneLeftCount"
-        ).textContent =
-            oneLeft;
-
-
-        document.getElementById(
-            "loading"
-        ).textContent =
-            `Found ${products.length} current/recent GAN + MoYu 3×3 listings.`;
+        renderAll();
 
     } catch (error) {
 
         console.error(error);
 
-        showError(
-            "SCS could not be queried. " +
-            "If you opened this file directly as file://, " +
-            runFromServerMessage()
-        );
+        document.getElementById(
+            "errorBox"
+        ).innerHTML = `
+            <div class="error">
+                Could not load SpeedCubeShop.
+                Check your internet connection and
+                make sure this page is being served from
+                a local web server rather than blocked
+                by browser file:// security.
+                <br><br>
+                ${escapeHTML(error.message)}
+            </div>
+        `;
 
-    } finally {
-
-        button.disabled = false;
-
-        button.textContent =
-            "Scan SCS";
+        setStatus("Loading failed");
     }
 }
 
-
-/* ======================================================
-   SERVER MESSAGE
-====================================================== */
-
-function runFromServerMessage() {
-
-    return " Try opening it through a local web server (for example VS Code Live Server).";
-}
-
-
-/* ======================================================
-   ERROR
-====================================================== */
-
-function showError(
-    message
-) {
-
-    const element =
-        document.getElementById(
-            "error"
-        );
-
-    element.textContent =
-        message;
-
-    element.style.display =
-        "block";
-}
-
-
-function clearError() {
-
-    const element =
-        document.getElementById(
-            "error"
-        );
-
-    element.style.display =
-        "none";
-}
-
-
-/* ======================================================
-   AUTOMATIC REFRESH
-====================================================== */
+start();
 
 /*
-   Re-scan every 30 seconds.
+    Automatic stock refresh every 5 minutes.
 
-   This also rediscoveries the catalog, so if SCS adds
-   a new current model, it can appear automatically.
+    This refreshes the actual SCS data rather than simply
+    changing the displayed timer.
 */
-
 setInterval(
-    startScan,
-    30000
+    () => {
+        loadProducts().catch(
+            console.error
+        );
+    },
+    5 * 60 * 1000
 );
-
-
-/* ======================================================
-   START
-====================================================== */
-
-startScan();
 
 </script>
 
 </body>
 </html>
-
