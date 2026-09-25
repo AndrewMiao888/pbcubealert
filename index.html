@@ -3,339 +3,1103 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PB Cube Stock Monitor</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>SCS GAN + MoYu 3×3 Stock</title>
 
 <style>
-    body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background: #0b0d10;
-        color: white;
-        font-family: Arial, sans-serif;
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #090b0f;
+    color: #f5f7fa;
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+.container {
+    width: min(1200px, 94vw);
+    margin: 35px auto 60px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+.subtitle {
+    color: #8f98a8;
+    margin-top: 7px;
+    margin-bottom: 25px;
+}
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+button {
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 17px;
+    font-weight: 700;
+    cursor: pointer;
+    background: white;
+    color: #111;
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: wait;
+}
+
+.stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.stat {
+    background: #151920;
+    border: 1px solid #272d38;
+    border-radius: 12px;
+    padding: 12px 15px;
+}
+
+.stat span {
+    color: #7e8795;
+    font-size: 12px;
+}
+
+.stat strong {
+    display: block;
+    font-size: 20px;
+    margin-top: 3px;
+}
+
+.section {
+    margin-top: 35px;
+}
+
+.section-title {
+    font-size: 22px;
+    margin-bottom: 12px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.card {
+    background: #151920;
+    border: 1px solid #272d38;
+    border-radius: 15px;
+    padding: 16px;
+    transition: .15s;
+}
+
+.card:hover {
+    border-color: #495363;
+    transform: translateY(-1px);
+}
+
+.name {
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.price {
+    color: #8992a1;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.stock {
+    margin-top: 13px;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.good {
+    color: #50d88a;
+}
+
+.low {
+    color: #ffbd45;
+}
+
+.one {
+    color: #ff4d5d;
+    animation: pulse .8s infinite alternate;
+}
+
+.out {
+    color: #777e8a;
+}
+
+.unknown {
+    color: #e6bf4c;
+    font-size: 15px;
+}
+
+a {
+    display: inline-block;
+    margin-top: 11px;
+    color: #8ebcff;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#error {
+    display: none;
+    padding: 15px;
+    border-radius: 12px;
+    background: #291619;
+    border: 1px solid #65353b;
+    color: #ff9fa7;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+#loading {
+    color: #aeb6c4;
+    padding: 25px 0;
+}
+
+.small {
+    color: #707988;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
     }
 
-    .box {
-        width: min(600px, 90%);
-        padding: 30px;
-        border-radius: 20px;
-        background: #171a20;
-        text-align: center;
-        box-shadow: 0 20px 60px #0008;
+    to {
+        transform: scale(1.07);
     }
-
-    h1 {
-        margin-top: 0;
-    }
-
-    #stock {
-        font-size: 42px;
-        font-weight: bold;
-        margin: 25px 0 10px;
-    }
-
-    #status {
-        color: #aab1bd;
-        min-height: 24px;
-    }
-
-    button {
-        margin-top: 25px;
-        padding: 12px 20px;
-        border: 0;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 15px;
-    }
-
-    .one {
-        color: #ff4757;
-        animation: pulse 0.7s infinite alternate;
-    }
-
-    .ok {
-        color: #4cd97b;
-    }
-
-    .unknown {
-        color: #f5c542;
-    }
-
-    @keyframes pulse {
-        from { transform: scale(1); }
-        to   { transform: scale(1.08); }
-    }
+}
 </style>
 </head>
 
 <body>
 
-<div class="box">
-    <h1>MoYu PB WR 3×3</h1>
+<div class="container">
 
-    <div id="stock" class="unknown">CHECKING...</div>
+    <h1>SpeedCubeShop — GAN + MoYu 3×3</h1>
 
-    <div id="status">
-        Starting monitor...
+    <div class="subtitle">
+        Current and recent generations — old generations filtered out
     </div>
 
-    <button onclick="checkStock()">CHECK NOW</button>
+    <div class="toolbar">
+
+        <button id="refreshButton"
+                onclick="startScan()">
+            Scan SCS
+        </button>
+
+        <button onclick="location.reload()">
+            Reload
+        </button>
+
+    </div>
+
+    <div class="stats">
+
+        <div class="stat">
+            <span>GAN</span>
+            <strong id="ganCount">—</strong>
+        </div>
+
+        <div class="stat">
+            <span>MoYu</span>
+            <strong id="moyuCount">—</strong>
+        </div>
+
+        <div class="stat">
+            <span>In stock</span>
+            <strong id="inStockCount">—</strong>
+        </div>
+
+        <div class="stat">
+            <span>1 left</span>
+            <strong id="oneLeftCount">—</strong>
+        </div>
+
+    </div>
+
+    <div id="loading">
+        Discovering SCS products...
+    </div>
+
+    <div id="error"></div>
+
+    <div class="section">
+
+        <div class="section-title">
+            GAN
+        </div>
+
+        <div
+            class="grid"
+            id="ganGrid">
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <div class="section-title">
+            MoYu
+        </div>
+
+        <div
+            class="grid"
+            id="moyuGrid">
+        </div>
+
+    </div>
+
+    <div class="small">
+        Exact quantity is shown only when SCS exposes
+        inventory quantity for that product/variant.
+    </div>
+
 </div>
 
+
 <script>
-const PRODUCT =
-    "https://speedcubeshop.com/products/pb-wr-3x3-magnetic-maglev-20-magnet-ball-core-uv-coated";
 
-const PRODUCT_JSON =
-    PRODUCT + ".js";
+/* ======================================================
+   CONFIG
+====================================================== */
 
-const CHECK_EVERY =
-    10000; // 10 seconds
+const SCS =
+    "https://speedcubeshop.com";
 
-let previousStock = null;
-let alerted = false;
+/*
+   These are SCS's brand/product collections.
+
+   We discover products from these collections instead
+   of maintaining a giant list of fragile handles.
+*/
+
+const COLLECTIONS = {
+
+    GAN:
+        "/collections/gan-magnetic-cubes",
+
+    MoYu:
+        "/collections/moyu-cube-3x3"
+};
 
 
-/* -----------------------------------------
-   Browser notification permission
------------------------------------------ */
+/*
+==========================================================
+   AGE FILTER
+==========================================================
 
-async function enableNotifications() {
-    if ("Notification" in window) {
-        if (Notification.permission === "default") {
-            await Notification.requestPermission();
-        }
-    }
-}
+We DON'T want only the newest models.
+
+We want CURRENT + RECENT.
+
+Therefore:
+
+GAN:
+    Include 12 and newer generations,
+    plus V-series/current models.
+
+MoYu:
+    Include V5 and newer RS3M generations,
+    V9+ WeiLong,
+    V5+ AoLong,
+    current Super series,
+    PB WR,
+    etc.
+
+This deliberately excludes things such as:
+    GAN 11
+    GAN 10
+    RS3 M 2020
+    very old WeiLongs
+==========================================================
+*/
 
 
-/* -----------------------------------------
-   Notify
------------------------------------------ */
+function isWantedGAN(title) {
 
-function notify(stock) {
+    const t =
+        title.toLowerCase();
 
-    if (alerted) return;
+    if (!t.includes("3x3"))
+        return false;
 
-    alerted = true;
+    /*
+       Explicitly reject old generations.
+    */
 
-    const message =
-        "The MoYu PB WR 3×3 has only 1 unit left!";
-
-    // Browser notification
     if (
-        "Notification" in window &&
-        Notification.permission === "granted"
-    ) {
-        new Notification("🚨 PB CUBE — 1 LEFT!", {
-            body: message,
-            requireInteraction: true
-        });
-    }
+        /gan\s*(?:10|11)\b/i.test(t)
+    )
+        return false;
 
-    // Also change the page
-    document.title = "🚨 PB CUBE — 1 LEFT!";
+    /*
+       Accept:
+       GAN 12+
+       GAN 15
+       GAN 16
+       GAN 17
+       GAN V100
+       GAN i-series current products
+       current limited editions
+    */
 
-    document.getElementById("stock").textContent =
-        "🚨 1 LEFT";
+    if (
+        /gan\s*(?:1[2-9]|2[0-9])\b/i.test(t)
+    )
+        return true;
 
-    document.getElementById("stock").className =
-        "one";
+    if (
+        /\bgan\s*v\d+/i.test(t)
+    )
+        return true;
 
-    document.getElementById("status").textContent =
-        "ONLY ONE UNIT REMAINING — BUY NOW!";
+    if (
+        /\bgan\s*i\d+/i.test(t)
+    )
+        return true;
 
-    // Repeated sound
-    beep();
+    if (
+        /\bgan\s*356\s*me\b/i.test(t)
+    )
+        return true;
+
+    return false;
 }
 
 
-/* -----------------------------------------
-   Sound
------------------------------------------ */
+function isWantedMoYu(title) {
 
-function beep() {
+    const t =
+        title.toLowerCase();
 
-    try {
+    if (!t.includes("3x3"))
+        return false;
 
-        const AudioContext =
-            window.AudioContext ||
-            window.webkitAudioContext;
+    /*
+       Remove very old RS3M generations.
+    */
 
-        const audio =
-            new AudioContext();
+    if (
+        /rs3\s*m\s*2020/i.test(t)
+    )
+        return false;
 
-        const oscillator =
-            audio.createOscillator();
+    /*
+       Current RS3M V5+.
+    */
 
-        const gain =
-            audio.createGain();
+    if (
+        /rs3\s*m.*v[5-9]\b/i.test(t)
+    )
+        return true;
 
-        oscillator.frequency.value = 1000;
+    /*
+       Super RS3M current models.
+    */
 
-        oscillator.connect(gain);
-        gain.connect(audio.destination);
+    if (
+        /super\s*rs3\s*m/i.test(t)
+    )
+        return true;
 
-        gain.gain.value = 0.25;
+    /*
+       Current WeiLong:
+       V9, V10, V11 and newer.
+    */
 
-        oscillator.start();
+    if (
+        /weilong.*v(?:9|10|11|12|13|14|15|16|17|18|19|20)\b/i.test(t)
+    )
+        return true;
 
-        setTimeout(() => {
-            oscillator.stop();
-            audio.close();
-        }, 1000);
+    /*
+       Current Super WeiLong.
+    */
 
-    } catch (e) {
-        console.log("Sound unavailable.");
-    }
+    if (
+        /super\s*weilong/i.test(t)
+    )
+        return true;
+
+    /*
+       PB WR.
+    */
+
+    if (
+        /pb\s*wr/i.test(t)
+    )
+        return true;
+
+    /*
+       Current AoLong V5+.
+    */
+
+    if (
+        /aolong.*v[5-9]\b/i.test(t)
+    )
+        return true;
+
+    /*
+       Other clearly recent MoYu 3x3 models.
+    */
+
+    if (
+        /moyu.*3x3.*v[5-9]\b/i.test(t)
+    )
+        return true;
+
+    return false;
 }
 
 
-/* -----------------------------------------
-   Get stock
------------------------------------------ */
+/* ======================================================
+   FETCH COLLECTION PRODUCTS
+====================================================== */
 
-async function getStock() {
+async function fetchCollectionProducts(
+    collection
+) {
+
+    /*
+       Shopify's collection JSON endpoint.
+
+       limit=250 gives us enough room for the
+       current collections.
+    */
+
+    const url =
+        `${SCS}${collection}/products.json` +
+        `?limit=250&_=${Date.now()}`;
 
     const response =
-        await fetch(PRODUCT_JSON, {
-            cache: "no-store"
-        });
+        await fetch(
+            url,
+            {
+                cache: "no-store"
+            }
+        );
 
     if (!response.ok) {
+
         throw new Error(
-            "Could not access SpeedCubeShop product data."
+            `Collection request failed: HTTP ${response.status}`
         );
     }
 
-    const product =
+    const data =
         await response.json();
 
-    /*
-       Look through all variants.
+    return data.products || [];
+}
 
-       Shopify product JSON may expose
-       inventory_quantity on variants.
+
+/* ======================================================
+   GET ALL WANTED PRODUCTS
+====================================================== */
+
+async function discoverProducts() {
+
+    const result = [];
+
+    for (
+        const [brand, collection]
+        of Object.entries(COLLECTIONS)
+    ) {
+
+        const products =
+            await fetchCollectionProducts(
+                collection
+            );
+
+        for (const product of products) {
+
+            const title =
+                product.title || "";
+
+            let wanted = false;
+
+            if (brand === "GAN") {
+
+                wanted =
+                    isWantedGAN(title);
+
+            } else {
+
+                wanted =
+                    isWantedMoYu(title);
+            }
+
+            if (!wanted)
+                continue;
+
+            /*
+               The Shopify collection JSON normally gives
+               us the handle directly.
+            */
+
+            result.push({
+
+                brand,
+
+                title,
+
+                handle:
+                    product.handle,
+
+                url:
+                    `${SCS}/products/${product.handle}`,
+
+                price:
+                    product.variants?.[0]?.price ??
+                    null
+
+            });
+        }
+    }
+
+    /*
+       Remove accidental duplicates.
     */
 
-    let quantities = [];
+    const unique =
+        new Map();
 
-    for (const variant of product.variants || []) {
+    for (const product of result) {
+
+        unique.set(
+            product.handle,
+            product
+        );
+    }
+
+    return [...unique.values()];
+}
+
+
+/* ======================================================
+   PRODUCT JSON
+====================================================== */
+
+async function fetchProduct(
+    product
+) {
+
+    const url =
+        `${SCS}/products/${product.handle}.js` +
+        `?_=${Date.now()}`;
+
+    const response =
+        await fetch(
+            url,
+            {
+                cache: "no-store"
+            }
+        );
+
+    if (!response.ok) {
+
+        throw new Error(
+            `HTTP ${response.status}`
+        );
+    }
+
+    return await response.json();
+}
+
+
+/* ======================================================
+   INVENTORY EXTRACTION
+====================================================== */
+
+function extractInventory(
+    productData
+) {
+
+    const variants =
+        productData.variants || [];
+
+    /*
+       Shopify sometimes gives inventory_quantity
+       directly.
+
+       If ANY variant has it, use those values.
+    */
+
+    const quantities = [];
+
+    for (
+        const variant
+        of variants
+    ) {
 
         if (
             typeof variant.inventory_quantity ===
             "number"
         ) {
+
             quantities.push(
-                variant.inventory_quantity
+                Math.max(
+                    0,
+                    variant.inventory_quantity
+                )
             );
         }
     }
 
-    if (!quantities.length) {
-        throw new Error(
-            "Inventory quantity is not exposed."
+    if (quantities.length) {
+
+        return quantities.reduce(
+            (a, b) => a + b,
+            0
         );
     }
 
+
     /*
-       If the product has multiple variants,
-       use the total available quantity.
+       Some products only expose availability.
+
+       We deliberately return UNKNOWN instead of
+       pretending "In stock" means a particular number.
     */
 
-    return quantities.reduce(
-        (total, quantity) =>
-            total + Math.max(0, quantity),
-        0
+    return null;
+}
+
+
+/* ======================================================
+   CREATE CARD
+====================================================== */
+
+function createCard(
+    product
+) {
+
+    const card =
+        document.createElement("div");
+
+    card.className =
+        "card";
+
+    const id =
+        "stock-" +
+        safeID(product.handle);
+
+    card.innerHTML = `
+
+        <div class="name">
+            ${escapeHTML(product.title)}
+        </div>
+
+        <div class="price">
+            ${
+                product.price
+                    ? "$" + product.price
+                    : ""
+            }
+        </div>
+
+        <div
+            id="${id}"
+            class="stock unknown">
+            Checking...
+        </div>
+
+        <a
+            href="${product.url}"
+            target="_blank"
+            rel="noopener">
+            View on SpeedCubeShop →
+        </a>
+    `;
+
+    return card;
+}
+
+
+/* ======================================================
+   SAFE ID
+====================================================== */
+
+function safeID(
+    value
+) {
+
+    return value.replace(
+        /[^a-zA-Z0-9_-]/g,
+        "_"
     );
 }
 
 
-/* -----------------------------------------
-   Check
------------------------------------------ */
+/* ======================================================
+   ESCAPE HTML
+====================================================== */
 
-async function checkStock() {
+function escapeHTML(
+    value
+) {
 
-    const stockElement =
-        document.getElementById("stock");
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
 
-    const statusElement =
-        document.getElementById("status");
+
+/* ======================================================
+   UPDATE CARD
+====================================================== */
+
+function updateCard(
+    product,
+    quantity
+) {
+
+    const element =
+        document.getElementById(
+            "stock-" +
+            safeID(product.handle)
+        );
+
+    if (!element)
+        return;
+
+    if (quantity === null) {
+
+        element.textContent =
+            "QUANTITY UNKNOWN";
+
+        element.className =
+            "stock unknown";
+
+        return;
+    }
+
+    if (quantity === 0) {
+
+        element.textContent =
+            "OUT OF STOCK";
+
+        element.className =
+            "stock out";
+
+        return;
+    }
+
+    element.textContent =
+        quantity === 1
+            ? "1 LEFT"
+            : `${quantity} LEFT`;
+
+    if (quantity === 1) {
+
+        element.className =
+            "stock one";
+
+    } else if (quantity <= 3) {
+
+        element.className =
+            "stock low";
+
+    } else {
+
+        element.className =
+            "stock good";
+    }
+}
+
+
+/* ======================================================
+   CHECK PRODUCT
+====================================================== */
+
+async function checkProduct(
+    product
+) {
 
     try {
 
-        statusElement.textContent =
-            "Checking SpeedCubeShop...";
+        const data =
+            await fetchProduct(
+                product
+            );
 
-        const stock =
-            await getStock();
+        return extractInventory(
+            data
+        );
 
-        previousStock = stock;
+    } catch (error) {
 
-        if (stock === 1) {
+        console.error(
+            product.title,
+            error
+        );
 
-            notify(stock);
+        return null;
+    }
+}
 
-            return;
+
+/* ======================================================
+   SCAN
+====================================================== */
+
+async function startScan() {
+
+    const button =
+        document.getElementById(
+            "refreshButton"
+        );
+
+    button.disabled = true;
+
+    button.textContent =
+        "Scanning...";
+
+    document.getElementById(
+        "loading"
+    ).textContent =
+        "Discovering current/recent GAN and MoYu 3×3s...";
+
+    clearError();
+
+    try {
+
+        const products =
+            await discoverProducts();
+
+        const gan =
+            products.filter(
+                p => p.brand === "GAN"
+            );
+
+        const moyu =
+            products.filter(
+                p => p.brand === "MoYu"
+            );
+
+
+        /*
+           Clear old cards.
+        */
+
+        document.getElementById(
+            "ganGrid"
+        ).innerHTML = "";
+
+        document.getElementById(
+            "moyuGrid"
+        ).innerHTML = "";
+
+
+        /*
+           Create all cards first so the UI appears
+           immediately.
+        */
+
+        for (const product of gan) {
+
+            document.getElementById(
+                "ganGrid"
+            ).appendChild(
+                createCard(product)
+            );
         }
 
-        alerted = false;
+        for (const product of moyu) {
 
-        stockElement.textContent =
-            stock + " LEFT";
+            document.getElementById(
+                "moyuGrid"
+            ).appendChild(
+                createCard(product)
+            );
+        }
 
-        stockElement.className =
-            stock > 1 ? "ok" : "unknown";
 
-        statusElement.textContent =
-            "Monitoring every 10 seconds.";
+        document.getElementById(
+            "ganCount"
+        ).textContent =
+            gan.length;
+
+        document.getElementById(
+            "moyuCount"
+        ).textContent =
+            moyu.length;
+
+
+        /*
+           Now check each product.
+
+           Sequentially rather than blasting SCS with
+           dozens of simultaneous requests.
+        */
+
+        let inStock = 0;
+        let oneLeft = 0;
+
+        for (const product of products) {
+
+            const quantity =
+                await checkProduct(
+                    product
+                );
+
+            updateCard(
+                product,
+                quantity
+            );
+
+            if (
+                typeof quantity ===
+                "number"
+            ) {
+
+                if (quantity > 0)
+                    inStock++;
+
+                if (quantity === 1)
+                    oneLeft++;
+            }
+        }
+
+
+        document.getElementById(
+            "inStockCount"
+        ).textContent =
+            inStock;
+
+        document.getElementById(
+            "oneLeftCount"
+        ).textContent =
+            oneLeft;
+
+
+        document.getElementById(
+            "loading"
+        ).textContent =
+            `Found ${products.length} current/recent GAN + MoYu 3×3 listings.`;
 
     } catch (error) {
 
         console.error(error);
 
-        stockElement.textContent =
-            "UNKNOWN";
+        showError(
+            "SCS could not be queried. " +
+            "If you opened this file directly as file://, " +
+            runFromServerMessage()
+        );
 
-        stockElement.className =
-            "unknown";
+    } finally {
 
-        statusElement.textContent =
-            "Stock quantity couldn't be read. " +
-            error.message;
+        button.disabled = false;
+
+        button.textContent =
+            "Scan SCS";
     }
 }
 
 
-/* -----------------------------------------
-   Start
------------------------------------------ */
+/* ======================================================
+   SERVER MESSAGE
+====================================================== */
 
-async function start() {
+function runFromServerMessage() {
 
-    await enableNotifications();
-
-    await checkStock();
-
-    setInterval(
-        checkStock,
-        CHECK_EVERY
-    );
+    return " Try opening it through a local web server (for example VS Code Live Server).";
 }
 
-start();
+
+/* ======================================================
+   ERROR
+====================================================== */
+
+function showError(
+    message
+) {
+
+    const element =
+        document.getElementById(
+            "error"
+        );
+
+    element.textContent =
+        message;
+
+    element.style.display =
+        "block";
+}
+
+
+function clearError() {
+
+    const element =
+        document.getElementById(
+            "error"
+        );
+
+    element.style.display =
+        "none";
+}
+
+
+/* ======================================================
+   AUTOMATIC REFRESH
+====================================================== */
+
+/*
+   Re-scan every 30 seconds.
+
+   This also rediscoveries the catalog, so if SCS adds
+   a new current model, it can appear automatically.
+*/
+
+setInterval(
+    startScan,
+    30000
+);
+
+
+/* ======================================================
+   START
+====================================================== */
+
+startScan();
 
 </script>
 
 </body>
 </html>
-
-
-
-
-
 
