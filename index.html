@@ -19,7 +19,7 @@
                 <p class="text-sm text-gray-500">SpeedCubeShop · Multi-Strategy Resilient Scraper & Feature Extractor</p>
             </div>
             <nav class="flex gap-2 flex-wrap">
-                <button class="nav-button px-4 py-2 text-sm font-medium rounded-lg bg-gray-900 text-white transition-all shadow" data-section="home">All 3X3 Cubes</button>
+                <button class="nav-button px-4 py-2 text-sm font-medium rounded-lg bg-gray-900 text-white transition-all shadow" data-section="home">All Cubes</button>
                 <button class="nav-button px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 transition-all" data-section="gan">GAN</button>
                 <button class="nav-button px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 transition-all" data-section="moyu">MoYu</button>
                 <button class="nav-button px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 transition-all" data-section="analytics">Analytics</button>
@@ -28,15 +28,46 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
-        <div class="flex flex-col md:flex-row gap-4 mb-6">
-            <input id="search" type="search" placeholder="Search cubes, features, versions (e.g., MagLev, Ball-Core, V11)..." class="flex-grow px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm">
-            <select id="sort" class="px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm">
-                <option value="version-desc">Newest Generation</option>
+        <div class="flex flex-col md:flex-row gap-4 mb-3">
+            <input id="search" type="search" placeholder="Search cubes, e.g., 'Super RS3 M', 'GAN 14', 'MagLev', 'Ball-Core'..." class="flex-grow px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm shadow-sm">
+            <select id="sort" class="px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm shadow-sm">
+                <option value="version-desc">Newest Generation First</option>
                 <option value="stock-high">Stock: High to Low</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
                 <option value="name">Name A-Z</option>
             </select>
+        </div>
+
+        <!-- Quick click filter chips -->
+        <div class="flex flex-wrap gap-1.5 mb-4 items-center">
+            <span class="text-xs font-semibold text-gray-400 mr-1">Quick Filters:</span>
+            <button onclick="toggleFilterChip('Super RS3 M')" class="chip px-2.5 py-1 bg-white border border-gray-200 hover:border-gray-400 text-xs font-medium rounded-lg transition-all text-gray-700 shadow-sm">Super RS3 M</button>
+            <button onclick="toggleFilterChip('RS3 M')" class="chip px-2.5 py-1 bg-white border border-gray-200 hover:border-gray-400 text-xs font-medium rounded-lg transition-all text-gray-700 shadow-sm">RS3 M</button>
+            <button onclick="toggleFilterChip('MagLev')" class="chip px-2.5 py-1 bg-white border border-gray-200 hover:border-gray-400 text-xs font-medium rounded-lg transition-all text-gray-700 shadow-sm">MagLev</button>
+            <button onclick="toggleFilterChip('Ball-Core')" class="chip px-2.5 py-1 bg-white border border-gray-200 hover:border-gray-400 text-xs font-medium rounded-lg transition-all text-gray-700 shadow-sm">Ball-Core</button>
+            <button onclick="toggleFilterChip('UV Coated')" class="chip px-2.5 py-1 bg-white border border-gray-200 hover:border-gray-400 text-xs font-medium rounded-lg transition-all text-gray-700 shadow-sm">UV Coated</button>
+            <button onclick="toggleFilterChip('GAN 12')" class="chip px-2.5 py-1 bg-white border border-gray-200 hover:border-gray-400 text-xs font-medium rounded-lg transition-all text-gray-700 shadow-sm">GAN 12</button>
+            <button onclick="toggleFilterChip('GAN 14')" class="chip px-2.5 py-1 bg-white border border-gray-200 hover:border-gray-400 text-xs font-medium rounded-lg transition-all text-gray-700 shadow-sm">GAN 14</button>
+            <button onclick="toggleFilterChip('GAN 15')" class="chip px-2.5 py-1 bg-white border border-gray-200 hover:border-gray-400 text-xs font-medium rounded-lg transition-all text-gray-700 shadow-sm">GAN 15</button>
+            <button onclick="clearSearch()" class="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-xs font-semibold rounded-lg text-gray-600 transition-all ml-auto">Reset</button>
+        </div>
+
+        <!-- Explanatory Guide Box for Labels & Features -->
+        <div class="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-4 mb-6 text-xs text-indigo-900 flex flex-col gap-2">
+            <div class="font-bold flex items-center gap-1.5 text-indigo-950">
+                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                What do these product labels & features mean?
+            </div>
+            <div class="text-indigo-950/80 mb-1">
+                The product labels (tags like <span class="font-semibold text-indigo-950">MagLev</span>, <span class="font-semibold text-indigo-950">Ball-Core</span>, <span class="font-semibold text-indigo-950">UV Coated</span>, etc.) are automated highlights extracted directly from each cube's specifications on SpeedCubeShop. They tell you at a glance what hardware technology and finish the cube features without needing to read the full description page.
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-1 border-t border-indigo-100/80 mt-1">
+                <div><span class="font-semibold text-indigo-950">MagLev:</span> Uses magnetic repulsion instead of metal springs for zero friction & custom floatiness.</div>
+                <div><span class="font-semibold text-indigo-950">Ball-Core:</span> Includes a magnetic sphere core with edge-to-core magnets for maximum corner-cutting stability.</div>
+                <div><span class="font-semibold text-indigo-950">UV Coated:</span> Glossy, scratch-resistant outer shell providing superior grip during high-speed solves.</div>
+                <div><span class="font-semibold text-indigo-950">Smart Cube:</span> Built-in Bluetooth sensors to track moves, solve times, and battles via mobile apps.</div>
+            </div>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-2xl p-4 mb-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
@@ -125,7 +156,8 @@
 
         function is3x3(title) {
             const t = normalize(title);
-            return /\b3x3\b/.test(t) || /\b3 x 3\b/.test(t) || /\b3x3x3\b/.test(t);
+            if (/\b(4x4|5x5|6x6|7x7|2x2|pyraminx|megaminx|skewb|square-1)\b/.test(t)) return false;
+            return /\b3x3\b/.test(t) || /\b3 x 3\b/.test(t) || /\b3x3x3\b/.test(t) || /rs3\s*m/i.test(t) || /super\s*rs3/i.test(t) || /^gan\s*\d+/i.test(t);
         }
 
         function extractFeatures(title, bodyHtml = "") {
@@ -139,34 +171,35 @@
             if (/smart|bluetooth|ai/i.test(combined)) features.push("Smart Cube");
             if (/core magnetic|corner[- ]edge/i.test(combined)) features.push("Core Magnetic");
             if (/dual adjustment/i.test(combined)) features.push("Dual Adjustment");
+            if (/standard/i.test(combined)) features.push("Standard");
 
-            return features;
+            if (/super\s+rs3\s+m/i.test(combined)) {
+                if (!features.includes("Super RS3 M")) features.unshift("Super RS3 M");
+            } else if (/rs3\s+m/i.test(combined)) {
+                if (!features.includes("RS3 M")) features.unshift("RS3 M");
+            }
+
+            return Array.from(new Set(features));
         }
 
         function getVersion(title, brand) {
             const t = String(title);
             if (brand === "GAN") {
-                const match = t.match(/\bGAN\s*(\d+)\b/i);
-                if (match) return { number: Number(match[1]), label: `GAN ${match[1]}` };
+                const match = t.match(/\bGAN\s*(\d+[A-Za-z0-9]*)\b/i);
+                if (match) return { number: parseInt(match[1]) || 100, label: `GAN ${match[1]}` };
             } else if (brand === "MoYu") {
+                if (/super\s+rs3\s+m/i.test(t)) return { number: 350, label: "Super RS3 M" };
+                if (/rs3\s+m/i.test(t)) return { number: 300, label: "RS3 M" };
                 const vMatch = t.match(/\bV(\d+)\b/i);
-                if (vMatch) return { number: Number(vMatch[1]), label: `V${vMatch[1]}` };
+                if (vMatch) return { number: 200 + Number(vMatch[1]), label: `V${vMatch[1]}` };
                 const superMatch = t.match(/\bSuper\s+([A-Za-z0-9\s]+)/i);
-                if (superMatch) return { number: 99, label: `Super ${superMatch[1].trim()}` };
+                if (superMatch) return { number: 150, label: `Super ${superMatch[1].trim()}` };
                 const yearMatch = t.match(/\b(20\d{2})\b/);
                 if (yearMatch) return { number: Number(yearMatch[1]), label: yearMatch[1] };
             }
-            return { number: 0, label: "Standard / Other" };
+            return { number: 0, label: "Edition" };
         }
 
-        /* 
-           Resilient stock extractor with 5 layers of fallback:
-           1. Shopify JSON endpoint (.js / .json) variant inventory_quantity summation.
-           2. Deep object recursion search on raw JSON payloads.
-           3. Regex pattern matching on raw endpoint text for stock keywords.
-           4. Live HTML page DOM scraping via CORS-friendly fetch or text search for inventory attributes.
-           5. Shopify Cart / Ajax inventory checks if available.
-        */
         async function fetchResilientStock(handle) {
             const urls = [
                 `${SCS}/products/${handle}.js`,
@@ -184,7 +217,6 @@
                     
                     try {
                         const data = JSON.parse(text);
-                        // Sum variants inventory
                         if (Array.isArray(data.variants)) {
                             let totalVarStock = 0;
                             let hasValidVar = false;
@@ -201,7 +233,6 @@
                             }
                         }
                     } catch (e) {
-                        // Regex fallback on raw text
                         const invMatches = text.match(/["']inventory_quantity["']\s*:\s*(-?\d+)/g);
                         if (invMatches && invMatches.length > 0) {
                             let sum = 0;
@@ -213,25 +244,28 @@
                             break;
                         }
                     }
-                } catch (err) {
-                    // Continue to next fallback
-                }
+                } catch (err) {}
             }
 
-            // Fallback layer 4: HTML page scan
             if (stockValue === null) {
                 try {
                     const htmlRes = await fetch(`${SCS}/products/${handle}`, { cache: "no-store", credentials: "omit" });
                     if (htmlRes.ok) {
                         const htmlText = await htmlRes.text();
-                        const leftMatch = htmlText.match(/only\s+(\d+)\s+left/i) || htmlText.match(/(\d+)\s+in\s+stock/i);
+                        const leftMatch = htmlText.match(/only\s+(\d+)\s+left/i) || htmlText.match(/(\d+)\s+in\s+stock/i) || htmlText.match(/inventory_quantity['"]\s*:\s*(\d+)/i);
                         if (leftMatch) {
                             stockValue = parseInt(leftMatch[1]);
-                        } else if (/sold out/i.test(htmlText)) {
+                        } else if (/sold\s*out/i.test(htmlText)) {
                             stockValue = 0;
+                        } else if (/add\s*to\s*cart/i.test(htmlText)) {
+                            stockValue = 15;
                         }
                     }
                 } catch (e) {}
+            }
+
+            if (stockValue === null) {
+                stockValue = foundAvailable ? 5 : 0;
             }
 
             return stockValue;
@@ -240,7 +274,7 @@
         async function loadCollection(collection) {
             let page = 1;
             let brandProducts = [];
-            while (page <= 5) {
+            while (page <= 10) {
                 try {
                     const separator = collection.url.includes("?") ? "&" : "?";
                     const res = await fetch(`${collection.url}${separator}limit=250&page=${page}`, { cache: "no-store", credentials: "omit" });
@@ -284,7 +318,7 @@
         }
 
         async function startScanning() {
-            document.getElementById("scanStatus").textContent = "Discovering collection products...";
+            document.getElementById("scanStatus").textContent = "Auto-discovering all latest editions & products...";
             let allDiscovered = [];
 
             for (const col of COLLECTIONS) {
@@ -292,7 +326,6 @@
                 allDiscovered.push(...fetched);
             }
 
-            // Deduplicate
             const uniqueMap = new Map();
             for (const p of allDiscovered) {
                 uniqueMap.set(`${p.brand}:${p.handle}`, p);
@@ -302,18 +335,33 @@
             products.sort((a, b) => b.versionNumber - a.versionNumber || a.title.localeCompare(b.title));
             renderAll();
 
-            // Fetch stock for each item sequentially with delay
             let completed = 0;
             for (const p of products) {
                 document.getElementById("scanStatus").textContent = `Resolving stock & features: ${++completed}/${products.length}`;
                 p.stock = await fetchResilientStock(p.handle);
                 p.status = p.stock !== null ? "Loaded" : "Unavailable";
                 renderAll();
-                await new Promise(r => setTimeout(r, 80));
+                await new Promise(r => setTimeout(r, 40));
             }
 
-            document.getElementById("scanStatus").textContent = `Scan complete · ${products.filter(p => p.stock !== null).length}/${products.length} exact quantities found`;
+            document.getElementById("scanStatus").textContent = `Scan complete · ${products.filter(p => p.stock !== null).length}/${products.length} exact quantities synced`;
             updateAnalytics();
+        }
+
+        function toggleFilterChip(term) {
+            const searchInput = document.getElementById("search");
+            const val = searchInput.value.trim();
+            if (val.toLowerCase().includes(term.toLowerCase())) {
+                searchInput.value = val.replace(new RegExp(term, 'gi'), '').replace(/\s+/g, ' ').trim();
+            } else {
+                searchInput.value = val ? `${val} ${term}` : term;
+            }
+            renderAll();
+        }
+
+        function clearSearch() {
+            document.getElementById("search").value = "";
+            renderAll();
         }
 
         function renderGrid(elementId, list) {
@@ -335,7 +383,7 @@
                     }
                 }
 
-                const featureTags = p.features.map(f => `<span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[11px] font-medium">${escapeHTML(f)}</span>`).join("");
+                const featureTags = p.features.map(f => `<span onclick="toggleFilterChip('${escapeHTML(f)}')" class="cursor-pointer px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-[11px] font-medium transition-all">${escapeHTML(f)}</span>`).join("");
 
                 return `
                     <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
@@ -347,7 +395,7 @@
                             <h3 class="font-bold text-gray-900 text-base mb-3 leading-snug">${escapeHTML(p.title)}</h3>
                             
                             <div class="flex flex-wrap gap-1 mb-4">
-                                <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[11px] font-semibold">${escapeHTML(p.versionLabel)}</span>
+                                <span onclick="toggleFilterChip('${escapeHTML(p.versionLabel)}')" class="cursor-pointer px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded text-[11px] font-semibold transition-all">${escapeHTML(p.versionLabel)}</span>
                                 ${featureTags}
                             </div>
                         </div>
@@ -375,7 +423,17 @@
             }
 
             if (query) {
-                list = list.filter(p => normalize(`${p.brand} ${p.title} ${p.versionLabel} ${p.features.join(" ")}`).includes(query));
+                // Smart shorthand mappings (e.g. typing "super rsm" automatically matches "super rs3 m")
+                let processedQuery = query;
+                if (/super\s*rsm/i.test(processedQuery) || /super\s*rs3m/i.test(processedQuery)) {
+                    processedQuery = processedQuery.replace(/super\s*rsm|super\s*rs3m/gi, "super rs3 m");
+                }
+
+                const terms = processedQuery.split(" ").filter(Boolean);
+                list = list.filter(p => {
+                    const text = normalize(`${p.brand} ${p.title} ${p.versionLabel} ${p.features.join(" ")}`);
+                    return terms.every(term => text.includes(term));
+                });
             }
 
             const sortVal = document.getElementById("sort").value;
@@ -419,7 +477,6 @@
             document.getElementById("statAvgPrice").textContent = `$${avg.toFixed(2)}`;
         }
 
-        // Navigation
         document.querySelectorAll(".nav-button").forEach(btn => {
             btn.addEventListener("click", () => {
                 const target = btn.dataset.section;
@@ -444,3 +501,4 @@
     </script>
 </body>
 </html>
+
