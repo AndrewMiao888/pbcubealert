@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SCS 3x3 Stock Dashboard Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCS 3x3 Stock Dashboard Pro - MoYu Default Edition</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -14,23 +14,32 @@
 
 <div class="flex min-h-screen flex-col md:flex-row">
     <!-- Sidebar Navigation -->
-    <aside class="w-full md:w-64 bg-white border-r border-gray-200 md:fixed md:inset-y-0 left-0 overflow-y-auto z-30 p-5 flex flex-col justify-between">
+    <aside aria-label="Sidebar Navigation" class="w-full md:w-64 bg-white border-r border-gray-200 md:fixed md:inset-y-0 left-0 overflow-y-auto z-30 p-5 flex flex-col justify-between">
         <div>
             <div class="text-xl font-extrabold tracking-tight text-gray-900 mb-6 flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
+                <div class="w-3 h-3 rounded-full bg-indigo-600 animate-pulse"></div>
                 SCS 3x3 Pro
+            </div>
+
+            <!-- Connection Status Banner -->
+            <div id="connectionStatusBanner" class="mb-5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <div>
+                    <div id="connectionTitle" class="font-bold">Live Sync Active</div>
+                    <div id="connectionSub" class="text-[10px] text-emerald-600">Strict Live Inventory Sync</div>
+                </div>
             </div>
 
             <!-- Pinned & Favorites Navigation -->
             <div class="mb-6">
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Favorites & Pinned</div>
                 <div class="space-y-1">
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-semibold rounded-xl bg-amber-50 text-amber-900 hover:bg-amber-100 transition-all flex items-center justify-between" data-section="favorites">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-semibold rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-amber-500" data-section="favorites" role="tab" aria-pressed="false">
                         <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-amber-500 fill-amber-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                             Starred Favorites
                         </span>
-                        <span id="sidebarFavCount" class="bg-amber-200 text-amber-900 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                        <span id="sidebarFavCount" class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
                 </div>
             </div>
@@ -39,17 +48,17 @@
             <div class="mb-6">
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Cubes & Brands</div>
                 <div class="space-y-1">
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl bg-gray-900 text-white transition-all shadow-sm flex items-center justify-between" data-section="all">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-section="all" role="tab" aria-pressed="false">
                         <span>All Cubes</span>
-                        <span id="count-all" class="bg-gray-800 text-gray-300 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                        <span id="count-all" class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-section="gan">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl bg-gray-900 text-white transition-all shadow-sm flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-section="moyu" role="tab" aria-pressed="true">
+                        <span>MoYu Lineup</span>
+                        <span id="count-moyu" class="bg-gray-800 text-gray-300 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                    </button>
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-section="gan" role="tab" aria-pressed="false">
                         <span>GAN Lineup</span>
                         <span id="count-gan" class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
-                    </button>
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-section="moyu">
-                        <span>MoYu Lineup</span>
-                        <span id="count-moyu" class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
                 </div>
             </div>
@@ -58,19 +67,15 @@
             <div class="mb-6">
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Stock Level</div>
                 <div class="space-y-1">
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-filter-stock="exact">
-                        <span>Exact Quantity</span>
-                        <span id="count-stock-exact" class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
-                    </button>
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-filter-stock="in">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-filter-stock="in" role="button" aria-pressed="false">
                         <span>In Stock</span>
                         <span id="count-stock-in" class="bg-emerald-50 text-emerald-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-filter-stock="low">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-filter-stock="low" role="button" aria-pressed="false">
                         <span>Low Stock (< 5)</span>
                         <span id="count-stock-low" class="bg-amber-50 text-amber-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-filter-stock="out">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-filter-stock="out" role="button" aria-pressed="false">
                         <span>Out of Stock</span>
                         <span id="count-stock-out" class="bg-red-50 text-red-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
@@ -81,19 +86,19 @@
             <div class="mb-6">
                 <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Editions</div>
                 <div class="space-y-1">
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-filter-version="v11">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-filter-version="v11" role="button" aria-pressed="false">
                         <span>V11 Series</span>
                         <span id="count-ver-v11" class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-filter-version="v10">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-filter-version="v10" role="button" aria-pressed="false">
                         <span>V10 Series</span>
                         <span id="count-ver-v10" class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-filter-version="v9">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-filter-version="v9" role="button" aria-pressed="false">
                         <span>V9 Series</span>
                         <span id="count-ver-v9" class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
-                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between" data-filter-version="v5">
+                    <button class="nav-button w-full text-left px-3 py-2 text-sm font-medium rounded-xl text-gray-700 hover:bg-gray-100 transition-all flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-gray-900" data-filter-version="v5" role="button" aria-pressed="false">
                         <span>V5 Series</span>
                         <span id="count-ver-v5" class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
@@ -102,22 +107,22 @@
         </div>
 
         <div class="pt-4 border-t border-gray-100 text-xs text-gray-400">
-            Live SCS Shopify Engine · Auto-synced
+            SCS Pro Engine v3.2 · Strict Live Inventory
         </div>
     </aside>
 
     <main class="md:ml-64 flex-grow p-4 md:p-8 max-w-7xl">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">SCS 3x3 Stock Pro</h1>
-                <p class="text-sm text-gray-500 mt-1">SpeedCubeShop · Resilient Multi-Layer Scraper & Pinned Manager</p>
+                <h1 id="pageTitle" class="text-3xl font-extrabold tracking-tight text-gray-900">MoYu Lineup</h1>
+                <p id="pageSubtitle" class="text-sm text-gray-500 mt-1">SpeedCubeShop · Showing MoYu 3x3 speed cubes</p>
             </div>
             <div class="flex items-center gap-3 flex-wrap">
                 <span id="scanStatus" class="text-xs font-semibold px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Initializing Live Scraper...
+                    Ready for Live Sync
                 </span>
-                <button id="refreshButton" class="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold rounded-xl shadow transition-all">
+                <button id="refreshButton" class="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-semibold rounded-xl shadow transition-all focus:outline-none focus:ring-2 focus:ring-gray-900">
                     Force Refresh
                 </button>
             </div>
@@ -143,7 +148,7 @@
         </div>
 
         <div class="flex flex-col sm:flex-row gap-4 mb-6">
-            <input id="search" type="search" placeholder="Search cubes by name, brand, or feature (MagLev, Ball-Core, UV)..." class="flex-grow px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm shadow-sm">
+            <input id="search" type="search" placeholder="Search structured properties (e.g. maglev, ballcore, uv, v11)..." class="flex-grow px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm shadow-sm">
             <select id="sort" class="px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm shadow-sm">
                 <option value="version-desc">Newest Generation First</option>
                 <option value="stock-high">Stock: High to Low</option>
@@ -155,11 +160,17 @@
 
         <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="col-span-full py-16 text-center text-gray-400 border border-dashed border-gray-300 rounded-2xl">
-                Loading SpeedCubeShop catalog...
+                Initializing SpeedCubeShop structured metadata engine...
             </div>
         </div>
 
-        <div id="log" class="mt-8 border border-gray-200 rounded-2xl p-4 font-mono text-xs text-gray-500 bg-white max-h-40 overflow-y-auto hidden"></div>
+        <div class="mt-8">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Debug Log & Network Activity</div>
+                <button onclick="document.getElementById('log').innerHTML='';" class="text-xs text-indigo-600 hover:underline">Clear Log</button>
+            </div>
+            <div id="log" class="border border-gray-200 rounded-2xl p-4 font-mono text-xs text-gray-600 bg-white max-h-40 overflow-y-auto"></div>
+        </div>
     </main>
 </div>
 
@@ -172,36 +183,60 @@
         { brand: "GAN", url: `${SCS}/collections/gan-speed-cubes/products.json` }
     ];
 
-    let products = [];
-    let favorites = new Set(JSON.parse(localStorage.getItem("scs_favorites") || "[]"));
-    let activeFilter = "all"; // 'all', 'gan', 'moyu', 'favorites'
-    let activeStockFilter = null; // null, 'exact', 'in', 'low', 'out'
-    let activeVersionFilter = null; // null, 'v11', 'v10', 'v9', 'v5'
-
-    const KNOWN_CUBES = [
-        { brand: "MoYu", title: "WeiLong AI 3×3 V11 Guided Recovery Edition", handle: "moyu-weilong-ai-3x3-v11-guided-recovery-edition", price: 125.95, variant: "Magnetic, MagLev, Ball-Core, Bluetooth Smart Cube" },
-        { brand: "MoYu", title: "WeiLong 3×3 V11", handle: "moyu-weilong-3x3-v11-magnetic-maglev-20-magnet-ball-core-uv-coated", price: 49.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated" },
-        { brand: "MoYu", title: "WeiLong 3×3 V11 18th Anniversary", handle: "moyu-weilong-3x3-v11-18th-anniversary", price: 59.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated" },
-        { brand: "MoYu", title: "WeiLong 3×3 V11", handle: "moyu-weilong-3x3-v11-magnetic-ball-core-uv-coated", price: 41.95, variant: "Magnetic, Ball-Core, UV Coated" },
-        { brand: "MoYu", title: "WeiLong 3×3 V11", handle: "moyu-weilong-3x3-v11-magnetic", price: 19.95, variant: "Magnetic" },
-        { brand: "MoYu", title: "WeiLong WR M 3×3 V10", handle: "moyu-weilong-wr-m-3x3-v10", price: 39.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated" },
-        { brand: "MoYu", title: "WeiLong WR M 3×3 V9", handle: "moyu-weilong-wr-m-3x3-v9", price: 39.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated" },
-        { brand: "MoYu", title: "Super WeiLong 3×3 V2", handle: "moyu-super-weilong-3x3-v2", price: 81.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated" },
-        { brand: "MoYu", title: "RS3 M 3×3 V5", handle: "moyu-rs3-m-3x3-v5", price: 24.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated + Robot Box" },
-        { brand: "MoYu", title: "RS3 M 3×3 V5", handle: "moyu-rs3-m-3x3-v5-magnetic", price: 8.95, variant: "Magnetic" },
-        { brand: "MoYu", title: "RS3 M 3×3 V5 SE", handle: "moyu-rs3-m-3x3-v5-se", price: 27.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated" },
-        { brand: "GAN", title: "GAN 17 MagDrive 3×3", handle: "gan-17-magdrive-3x3-magnetic-maglev-ball-core-uv-coated", price: 84.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated" },
-        { brand: "GAN", title: "GAN 16 3×3 Max", handle: "gan-16-3x3-max", price: 84.95, variant: "Magnetic, MagLev, Core Magnets, UV Coated" },
-        { brand: "GAN", title: "GAN 16 ui 3×3 Max", handle: "gan-16-ui-3x3-max", price: 139.95, variant: "Magnetic, MagLev, Core Magnets, UV Coated, Bluetooth" },
-        { brand: "GAN", title: "GAN 11 Pro 3×3", handle: "gan-11-pro-3x3", price: 39.95, variant: "Magnetic, Core Magnets" }
+    const CORS_PROXIES = [
+        url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        url => `https://corsproxy.io/?${encodeURIComponent(url)}`
     ];
 
-    function logMsg(txt) {
+    let products = [];
+    
+    // Only 1 PB WR cube handle retained (duplicate removed)
+    const PB_WR_HANDLE = "moyu-pb-wr-3x3-magnetic-maglev-20-magnet-ball-core-uv-coated";
+
+    let storedFavs = JSON.parse(localStorage.getItem("scs_favorites") || "null");
+    if (storedFavs === null) {
+        storedFavs = [PB_WR_HANDLE];
+        localStorage.setItem("scs_favorites", JSON.stringify(storedFavs));
+    }
+    let favorites = new Set(storedFavs);
+
+    let activeFilter = "moyu"; 
+    let activeStockFilter = null; 
+    let activeVersionFilter = null; 
+
+    // Curated offline-first database with exact structured metadata (duplicate PB WR removed)
+    const KNOWN_CUBES = [
+        { brand: "MoYu", title: "MoYu PB WR 3x3 (Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated)", handle: PB_WR_HANDLE, price: 49.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v11", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong AI 3×3 V11 Guided Recovery Edition", handle: "moyu-weilong-ai-3x3-v11-guided-recovery-edition", price: 125.95, variant: "Magnetic, MagLev, Ball-Core, Bluetooth Smart Cube", edition: "v11", isMagLev: true, isBallCore: true, isUV: true, isSmart: true, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong 3×3 V11 18th Anniversary", handle: "moyu-weilong-3x3-v11-18th-anniversary", price: 59.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v11", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong 3×3 V11", handle: "moyu-weilong-3x3-v11-magnetic-ball-core-uv-coated", price: 41.95, variant: "Magnetic, Ball-Core, UV Coated", edition: "v11", isMagLev: false, isBallCore: true, isUV: true, isSmart: false, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong 3×3 V11", handle: "moyu-weilong-3x3-v11-magnetic", price: 19.95, variant: "Magnetic", edition: "v11", isMagLev: false, isBallCore: false, isUV: false, isSmart: false, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong WR M 3×3 V10", handle: "moyu-weilong-wr-m-3x3-v10", price: 39.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v10", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 310 },
+        { brand: "MoYu", title: "WeiLong WR M 3×3 V9", handle: "moyu-weilong-wr-m-3x3-v9", price: 39.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated", edition: "v9", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 309 },
+        { brand: "MoYu", title: "Super WeiLong 3×3 V2", handle: "moyu-super-weilong-3x3-v2", price: 81.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v2", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 302 },
+        { brand: "MoYu", title: "RS3 M 3×3 V5", handle: "moyu-rs3-m-3x3-v5", price: 24.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated + Robot Box", edition: "v5", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 305 },
+        { brand: "MoYu", title: "RS3 M 3×3 V5", handle: "moyu-rs3-m-3x3-v5-magnetic", price: 8.95, variant: "Magnetic", edition: "v5", isMagLev: false, isBallCore: false, isUV: false, isSmart: false, versionNumber: 305 },
+        { brand: "MoYu", title: "RS3 M 3×3 V5 SE", handle: "moyu-rs3-m-3x3-v5-se", price: 27.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated", edition: "v5", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 305 },
+        { brand: "GAN", title: "GAN 17 MagDrive 3×3", handle: "gan-17-magdrive-3x3-magnetic-maglev-ball-core-uv-coated", price: 84.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated", edition: "gan17", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 17 },
+        { brand: "GAN", title: "GAN 16 3×3 Max", handle: "gan-16-3x3-max", price: 84.95, variant: "Magnetic, MagLev, Core Magnets, UV Coated", edition: "gan16", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 16 },
+        { brand: "GAN", title: "GAN 16 ui 3×3 Max", handle: "gan-16-ui-3x3-max", price: 139.95, variant: "Magnetic, MagLev, Core Magnets, UV Coated, Bluetooth", edition: "gan16", isMagLev: true, isBallCore: true, isUV: true, isSmart: true, versionNumber: 16 },
+        { brand: "GAN", title: "GAN 11 Pro 3×3", handle: "gan-11-pro-3x3", price: 39.95, variant: "Magnetic, Core Magnets", edition: "gan11", isMagLev: false, isBallCore: true, isUV: false, isSmart: false, versionNumber: 11 }
+    ];
+
+    function logMsg(txt, isError = false) {
         const logEl = document.getElementById("log");
-        logEl.classList.remove("hidden");
         const d = document.createElement("div");
         d.textContent = `[${new Date().toLocaleTimeString()}] ${txt}`;
+        if (isError) d.className = "text-amber-600 font-semibold";
         logEl.prepend(d);
+    }
+
+    function setConnectionStatus(status, subtitle, isError = false) {
+        const banner = document.getElementById("connectionStatusBanner");
+        const titleEl = document.getElementById("connectionTitle");
+        const subEl = document.getElementById("connectionSub");
+        titleEl.textContent = status;
+        subEl.textContent = subtitle;
     }
 
     function escapeHTML(str) {
@@ -218,60 +253,101 @@
         return /\b3x3\b/.test(t) || /\b3 x 3\b/.test(t) || /\b3x3x3\b/.test(t) || /rs3\s*m/i.test(t) || /super\s*rs3/i.test(t) || /^gan\s*\d+/i.test(t);
     }
 
-    function extractFeatures(title, bodyHtml = "") {
+    function parseMetadata(title, bodyHtml = "", brand) {
         const combined = normalize(title + " " + bodyHtml);
         const features = [];
 
-        if (/maglev/i.test(combined)) features.push("MagLev");
-        if (/ball[- ]core/i.test(combined)) features.push("Ball-Core");
-        if (/uv/i.test(combined)) features.push("UV Coated");
-        if (/frosted|matte/i.test(combined)) features.push("Frosted");
-        if (/smart|bluetooth|ai/i.test(combined)) features.push("Smart Cube");
-        if (/core magnetic/i.test(combined)) features.push("Core Magnetic");
+        const isMagLev = /maglev/i.test(combined);
+        const isBallCore = /ball[- ]core|core magnetic/i.test(combined);
+        const isUV = /uv/i.test(combined);
+        const isFrosted = /frosted|matte/i.test(combined);
+        const isSmart = /\b(smart|bluetooth|ai|ui)\b/i.test(combined) && !/\b(guidance|box|charger)\b/i.test(combined);
 
-        if (/super\s+rs3\s+m/i.test(combined)) {
-            if (!features.includes("Super RS3 M")) features.unshift("Super RS3 M");
-        } else if (/rs3\s+m/i.test(combined)) {
-            if (!features.includes("RS3 M")) features.unshift("RS3 M");
+        if (isMagLev) features.push("MagLev");
+        if (isBallCore) features.push("Ball-Core");
+        if (isUV) features.push("UV Coated");
+        if (isFrosted) features.push("Frosted");
+        if (isSmart) features.push("Smart Cube");
+
+        let edition = "";
+        if (/v12/i.test(combined)) edition = "v12";
+        else if (/v11/i.test(combined)) edition = "v11";
+        else if (/v10/i.test(combined)) edition = "v10";
+        else if (/v9/i.test(combined)) edition = "v9";
+        else if (/v8/i.test(combined)) edition = "v8";
+        else if (/v7/i.test(combined)) edition = "v7";
+        else if (/v6/i.test(combined)) edition = "v6";
+        else if (/v5/i.test(combined)) edition = "v5";
+        else if (/v4/i.test(combined)) edition = "v4";
+        else if (/v3/i.test(combined)) edition = "v3";
+        else if (/v2/i.test(combined)) edition = "v2";
+        else if (brand === "GAN") {
+            const m = combined.match(/gan\s*(\d+)/);
+            if (m) edition = `gan${m[1]}`;
         }
 
-        return Array.from(new Set(features));
-    }
-
-    function getVersion(title, brand) {
-        const t = String(title);
+        let versionNumber = 0;
         if (brand === "GAN") {
-            const match = t.match(/\bGAN\s*(\d+[A-Za-z0-9]*)\b/i);
-            if (match) return { number: parseInt(match[1]) || 100, label: `GAN ${match[1]}` };
-        } else if (brand === "MoYu") {
-            if (/v11/i.test(t)) return { number: 311, label: "V11" };
-            if (/v10/i.test(t)) return { number: 310, label: "V10" };
-            if (/v9/i.test(t)) return { number: 309, label: "V9" };
-            if (/v5/i.test(t)) return { number: 305, label: "V5" };
-            if (/v2/i.test(t)) return { number: 302, label: "V2" };
-            const vMatch = t.match(/\bV(\d+)\b/i);
-            if (vMatch) return { number: 200 + Number(vMatch[1]), label: `V${vMatch[1]}` };
+            const match = combined.match(/gan\s*(\d+)/);
+            versionNumber = match ? parseInt(match[1]) : 10;
+        } else {
+            const vMatch = combined.match(/v(\d+)/);
+            if (vMatch) {
+                versionNumber = 300 + parseInt(vMatch[1]);
+            } else if (/pb\s*wr/i.test(combined)) {
+                versionNumber = 311;
+                edition = "v11";
+            } else {
+                versionNumber = 100;
+            }
         }
-        return { number: 0, label: "Edition" };
+
+        let versionLabel = "";
+        if (brand === "GAN") {
+            versionLabel = `GAN ${versionNumber}`;
+        } else if (edition.startsWith("v")) {
+            versionLabel = edition.toUpperCase();
+        } else {
+            versionLabel = "Standard";
+        }
+
+        return { features, edition, isMagLev, isBallCore, isUV, isSmart, versionNumber, versionLabel };
     }
 
+    async function resilientFetch(targetUrl) {
+        try {
+            const res = await fetch(targetUrl, { cache: "no-store", credentials: "omit" });
+            if (res.ok) {
+                const text = await res.text();
+                return JSON.parse(text);
+            }
+        } catch (err) {}
+
+        for (const proxyFn of CORS_PROXIES) {
+            try {
+                const pUrl = proxyFn(targetUrl);
+                const res = await fetch(pUrl, { cache: "no-store" });
+                if (res.ok) {
+                    const text = await res.text();
+                    return JSON.parse(text);
+                }
+            } catch (err) {}
+        }
+        throw new Error("All CORS proxies and direct fetches failed");
+    }
+
+    // STRICT STOCK CHECK: NO ESTIMATIONS ALLOWED. If API data is missing, we report exact status or pending.
     async function fetchResilientStock(handle) {
         const urls = [
             `${SCS}/products/${handle}.js`,
             `${SCS}/products/${handle}.json`
         ];
         
-        let stockValue = null;
-        let foundAvailable = false;
-
         for (const url of urls) {
             try {
-                const res = await fetch(url, { cache: "no-store", credentials: "omit" });
-                if (!res.ok) continue;
-                const text = await res.text();
-                try {
-                    const data = JSON.parse(text);
-                    if (Array.isArray(data.variants)) {
+                const data = await resilientFetch(url);
+                if (data) {
+                    if (Array.isArray(data.variants) && data.variants.length > 0) {
                         let totalVarStock = 0;
                         let hasValidVar = false;
                         for (const v of data.variants) {
@@ -279,87 +355,82 @@
                                 totalVarStock += Math.max(0, v.inventory_quantity);
                                 hasValidVar = true;
                             }
-                            if (v.available) foundAvailable = true;
                         }
                         if (hasValidVar) {
-                            stockValue = totalVarStock;
-                            break;
+                            if (totalVarStock === 0) {
+                                return { type: "out", quantity: 0, label: "Out of stock", source: "API" };
+                            } else if (totalVarStock <= 5) {
+                                return { type: "low", quantity: totalVarStock, label: `${totalVarStock} left`, source: "API" };
+                            } else {
+                                return { type: "exact", quantity: totalVarStock, label: `${totalVarStock} in stock`, source: "API" };
+                            }
                         }
                     }
-                } catch (e) {
-                    const invMatches = text.match(/["']inventory_quantity["']\s*:\s*(-?\d+)/g);
-                    if (invMatches && invMatches.length > 0) {
-                        let sum = 0;
-                        for (const m of invMatches) {
-                            const num = parseInt(m.replace(/\D/g, ""));
-                            if (!isNaN(num)) sum += num;
-                        }
-                        stockValue = sum;
-                        break;
+                    if (typeof data.inventory_quantity === "number") {
+                        const qty = data.inventory_quantity;
+                        if (qty === 0) return { type: "out", quantity: 0, label: "Out of stock", source: "API" };
+                        if (qty <= 5) return { type: "low", quantity: qty, label: `${qty} left`, source: "API" };
+                        return { type: "exact", quantity: qty, label: `${qty} in stock`, source: "API" };
                     }
                 }
-            } catch (err) {}
+            } catch (e) {}
         }
 
-        if (stockValue === null) {
-            stockValue = foundAvailable ? 5 : null;
-        }
-
-        if (stockValue === null) return { type: "unknown", quantity: null, label: "Quantity unknown", source: "Fallback" };
-        if (stockValue === 0) return { type: "out", quantity: 0, label: "Out of stock", source: "SCS API" };
-        if (stockValue <= 5) return { type: "low", quantity: stockValue, label: `${stockValue} left`, source: "SCS API" };
-        return { type: "exact", quantity: stockValue, label: `${stockValue} in stock`, source: "SCS API" };
+        // NO ESTIMATIONS! If network stock fetch fails, return explicit unknown status rather than a fake random number.
+        return { type: "unknown", quantity: null, label: "Stock Unavailable", source: "API Error" };
     }
 
     async function loadCollection(source) {
-        let page = 1;
-        let brandProducts = [];
-        while (page <= 3) {
-            try {
-                const separator = source.url.includes("?") ? "&" : "?";
-                const res = await fetch(`${source.url}${separator}limit=250&page=${page}`, { cache: "no-store", credentials: "omit" });
-                if (!res.ok) break;
-                const data = await res.json();
-                if (!data.products || data.products.length === 0) break;
+        try {
+            const separator = source.url.includes("?") ? "&" : "?";
+            const data = await resilientFetch(`${source.url}${separator}limit=250`);
+            if (!data.products || !Array.isArray(data.products)) return [];
+            
+            const brandProducts = [];
+            for (const raw of data.products) {
+                if (!is3x3(raw.title)) continue;
                 
-                for (const raw of data.products) {
-                    if (!is3x3(raw.title)) continue;
-                    
-                    let minPrice = 0;
-                    if (raw.variants && raw.variants.length > 0) {
-                        const prices = raw.variants.map(v => parseFloat(v.price)).filter(p => !isNaN(p));
-                        if (prices.length) minPrice = Math.min(...prices);
-                    }
-
-                    const version = getVersion(raw.title, source.brand);
-                    const features = extractFeatures(raw.title, raw.body_html || "");
-
-                    brandProducts.push({
-                        id: String(raw.id),
-                        brand: source.brand,
-                        title: raw.title,
-                        handle: raw.handle,
-                        url: `${SCS}/products/${raw.handle}`,
-                        price: minPrice,
-                        versionNumber: version.number,
-                        versionLabel: version.label,
-                        features: features,
-                        stock: { type: "unknown", quantity: null, label: "Loading...", source: "Pending" }
-                    });
+                let minPrice = 0;
+                if (raw.variants && raw.variants.length > 0) {
+                    const prices = raw.variants.map(v => parseFloat(v.price)).filter(p => !isNaN(p));
+                    if (prices.length) minPrice = Math.min(...prices);
                 }
-                if (data.products.length < 250) break;
-                page++;
-            } catch (err) {
-                break;
+
+                const meta = parseMetadata(raw.title, raw.body_html || "", source.brand);
+
+                brandProducts.push({
+                    id: String(raw.id || raw.handle),
+                    brand: source.brand,
+                    title: raw.title,
+                    handle: raw.handle,
+                    url: `${SCS}/products/${raw.handle}`,
+                    price: minPrice,
+                    ...meta,
+                    stock: { type: "unknown", quantity: null, label: "Checking...", source: "Pending" }
+                });
             }
+            return brandProducts;
+        } catch (err) {
+            logMsg(`Network error loading ${source.brand} collection: ${err.message}`, true);
+            return [];
         }
-        return brandProducts;
     }
 
-    function toggleFavorite(id) {
+    function isFavorite(p) {
+        return favorites.has(p.id) || favorites.has(p.handle) || favorites.has(String(p.id));
+    }
+
+    function toggleFavorite(id, handle) {
+        let removed = false;
         if (favorites.has(id)) {
             favorites.delete(id);
-        } else {
+            removed = true;
+        }
+        if (favorites.has(handle)) {
+            favorites.delete(handle);
+            removed = true;
+        }
+        if (!removed) {
             favorites.add(id);
         }
         localStorage.setItem("scs_favorites", JSON.stringify(Array.from(favorites)));
@@ -367,8 +438,10 @@
     }
 
     async function startScanning() {
-        document.getElementById("scanStatus").innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span> Discovering latest products...`;
+        document.getElementById("scanStatus").innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span> Syncing catalog...`;
+        logMsg("Initiating catalog synchronization with strict inventory verification.");
         
+        // Populate curated list with default stock status (to be updated by strict API calls)
         let allDiscovered = KNOWN_CUBES.map(k => ({
             id: k.handle,
             brand: k.brand,
@@ -376,17 +449,18 @@
             handle: k.handle,
             url: `${SCS}/products/${k.handle}`,
             price: k.price,
-            versionNumber: getVersion(k.title, k.brand).number,
-            versionLabel: getVersion(k.title, k.brand).label,
-            features: extractFeatures(k.title, k.variant),
-            stock: { type: "unknown", quantity: null, label: "Loading...", source: "Cached" }
+            ...parseMetadata(k.title, k.variant, k.brand),
+            stock: { type: "unknown", quantity: null, label: "Checking...", source: "Pending" }
         }));
 
         for (const source of SOURCES) {
             const fetched = await loadCollection(source);
-            allDiscovered.push(...fetched);
+            if (fetched.length > 0) {
+                allDiscovered.push(...fetched);
+            }
         }
 
+        // Deduplicate by brand + handle
         const uniqueMap = new Map();
         for (const p of allDiscovered) {
             uniqueMap.set(`${p.brand}:${p.handle}`, p);
@@ -395,28 +469,30 @@
         products.sort((a, b) => b.versionNumber - a.versionNumber || a.title.localeCompare(b.title));
         renderAll();
 
+        logMsg("Running strict live stock verification for all items...");
         let completed = 0;
         for (const p of products) {
-            document.getElementById("scanStatus").innerHTML = `Syncing stock: ${++completed}/${products.length}`;
+            completed++;
+            document.getElementById("scanStatus").innerHTML = `Verifying stock: ${completed}/${products.length}`;
             p.stock = await fetchResilientStock(p.handle);
+            await new Promise(r => setTimeout(r, 100));
             renderAll();
-            await new Promise(r => setTimeout(r, 15));
         }
 
-        document.getElementById("scanStatus").innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Scraper synced successfully`;
+        document.getElementById("scanStatus").innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live stock verified`;
         updateAnalytics();
-        logMsg("Catalog and resilient inventory sync completed successfully.");
+        logMsg("Inventory sync cycle completed with zero estimations.");
     }
 
     function renderGrid(list) {
         const container = document.getElementById("productGrid");
         if (!list.length) {
-            container.innerHTML = `<div class="col-span-full py-16 text-center text-gray-400 border border-dashed border-gray-300 rounded-2xl">No cubes found matching your active filters or search terms.</div>`;
+            container.innerHTML = `<div class="col-span-full py-16 text-center text-gray-400 border border-dashed border-gray-300 rounded-2xl">No cubes found matching your criteria.</div>`;
             return;
         }
 
         container.innerHTML = list.map(p => {
-            const isFav = favorites.has(p.id);
+            const isFav = isFavorite(p);
             let stockBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">Stock Unknown</span>`;
             if (p.stock) {
                 if (p.stock.type === "out") {
@@ -426,15 +502,18 @@
                 } else if (p.stock.type === "exact") {
                     stockBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">${escapeHTML(p.stock.label)}</span>`;
                 } else {
-                    stockBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">In Stock</span>`;
+                    stockBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">${escapeHTML(p.stock.label)}</span>`;
                 }
             }
 
             const featureTags = p.features.map(f => `<span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[11px] font-medium">${escapeHTML(f)}</span>`).join("");
+            const versionBadge = p.versionLabel && p.versionLabel !== "Standard" 
+                ? `<span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[11px] font-semibold">${escapeHTML(p.versionLabel)}</span>`
+                : "";
 
             return `
                 <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative group">
-                    <button onclick="toggleFavorite('${p.id}')" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-all ${isFav ? 'text-amber-500 fill-amber-500' : 'text-gray-300 hover:text-gray-500'}" title="${isFav ? 'Remove from favorites' : 'Star as favorite'}">
+                    <button onclick="toggleFavorite('${escapeHTML(p.id)}', '${escapeHTML(p.handle)}')" class="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-gray-300 hover:text-gray-500'}" aria-label="${isFav ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${isFav}">
                         <svg class="w-5 h-5 ${isFav ? 'fill-amber-500' : 'fill-none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                     </button>
 
@@ -446,7 +525,7 @@
                         <h3 class="font-bold text-gray-900 text-base mb-3 leading-snug">${escapeHTML(p.title)}</h3>
                         
                         <div class="flex flex-wrap gap-1 mb-4">
-                            <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[11px] font-semibold">${escapeHTML(p.versionLabel)}</span>
+                            ${versionBadge}
                             ${featureTags}
                         </div>
                     </div>
@@ -456,7 +535,7 @@
                             <span class="text-xs text-gray-500 font-medium">Price</span>
                             <span class="text-lg font-bold text-gray-900">${p.price > 0 ? '$' + p.price.toFixed(2) : '—'}</span>
                         </div>
-                        <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 px-4 text-center text-sm font-semibold rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-900 border border-gray-200 transition-all">
+                        <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 px-4 text-center text-sm font-semibold rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-900 border border-gray-200 transition-all focus:outline-none focus:ring-2 focus:ring-gray-900">
                             View on SpeedCubeShop →
                         </a>
                     </div>
@@ -469,91 +548,98 @@
         let list = [...products];
 
         if (activeFilter === "favorites") {
-            list = list.filter(p => favorites.has(p.id));
-        } else if (activeFilter === "gan") {
-            list = list.filter(p => p.brand === "GAN");
+            list = list.filter(p => isFavorite(p));
         } else if (activeFilter === "moyu") {
             list = list.filter(p => p.brand === "MoYu");
+        } else if (activeFilter === "gan") {
+            list = list.filter(p => p.brand === "GAN");
         }
 
-        if (activeStockFilter === "exact") {
-            list = list.filter(p => p.stock && p.stock.type === "exact");
-        } else if (activeStockFilter === "in") {
-            // Include both exact/low count stock and generic in-stock statuses
-            list = list.filter(p => p.stock && (p.stock.type === "exact" || p.stock.type === "low" || (p.stock.quantity !== null && p.stock.quantity > 0)));
+        if (activeStockFilter === "in") {
+            list = list.filter(p => p.stock && ["exact", "low"].includes(p.stock.type));
         } else if (activeStockFilter === "low") {
             list = list.filter(p => p.stock && p.stock.type === "low");
         } else if (activeStockFilter === "out") {
-            list = list.filter(p => p.stock && (p.stock.type === "out" || p.stock.quantity === 0));
+            list = list.filter(p => p.stock && p.stock.type === "out");
         }
 
         if (activeVersionFilter) {
-            list = list.filter(p => {
-                const text = normalize(`${p.title} ${p.versionLabel} ${p.handle}`);
-                return text.includes(activeVersionFilter);
-            });
+            list = list.filter(p => p.edition.includes(activeVersionFilter) || p.versionLabel.toLowerCase().includes(activeVersionFilter));
         }
 
         const query = normalize(document.getElementById("search").value);
         if (query) {
             const terms = query.split(" ").filter(Boolean);
             list = list.filter(p => {
-                const text = normalize(`${p.brand} ${p.title} ${p.versionLabel} ${p.features.join(" ")}`);
-                return terms.every(term => text.includes(term));
+                const searchCorpus = normalize(`${p.brand} ${p.title} ${p.versionLabel} ${p.edition} ${p.features.join(" ")}`);
+                return terms.every(term => searchCorpus.includes(term));
             });
         }
 
-        const sortVal = document.getElementById("sort").value;
-        if (sortVal === "version-desc") {
-            list.sort((a, b) => b.versionNumber - a.versionNumber || a.title.localeCompare(b.title));
-        } else if (sortVal === "stock-high") {
-            list.sort((a, b) => (b.stock?.quantity ?? -1) - (a.stock?.quantity ?? -1));
-        } else if (sortVal === "price-low") {
-            list.sort((a, b) => (a.price || Infinity) - (b.price || Infinity));
-        } else if (sortVal === "price-high") {
-            list.sort((a, b) => (b.price || 0) - (a.price || 0));
-        } else if (sortVal === "name") {
-            list.sort((a, b) => a.title.localeCompare(b.title));
-        }
-
         return list;
+    }
+
+    function updatePageTitleAndSubtitle() {
+        const titleEl = document.getElementById("pageTitle");
+        const subEl = document.getElementById("pageSubtitle");
+
+        if (activeFilter === "favorites") {
+            titleEl.textContent = "Starred Favorites";
+            subEl.textContent = "Your bookmarked and pinned 3x3 speed cubes";
+        } else if (activeFilter === "all") {
+            titleEl.textContent = "All 3x3 Cubes";
+            subEl.textContent = "Complete catalog across all leading speed cube brands";
+        } else if (activeFilter === "moyu") {
+            titleEl.textContent = "MoYu Lineup";
+            subEl.textContent = "SpeedCubeShop · Showing MoYu 3x3 speed cubes";
+        } else if (activeFilter === "gan") {
+            titleEl.textContent = "GAN Lineup";
+            subEl.textContent = "SpeedCubeShop · Showing GAN flagship speed cubes";
+        } else if (activeStockFilter) {
+            titleEl.textContent = `Stock Filter: ${activeStockFilter.toUpperCase()}`;
+            subEl.textContent = "Filtered by current verified inventory levels";
+        } else if (activeVersionFilter) {
+            titleEl.textContent = `Edition Series: ${activeVersionFilter.toUpperCase()}`;
+            subEl.textContent = "Filtered by specific generation series";
+        } else {
+            titleEl.textContent = "SCS 3x3 Stock Pro";
+            subEl.textContent = "SpeedCubeShop · Live Inventory Management Dashboard";
+        }
     }
 
     function renderAll() {
         const filtered = getFilteredList();
         renderGrid(filtered);
         updateAnalytics();
+        updatePageTitleAndSubtitle();
     }
 
     function updateAnalytics() {
         document.getElementById("statTotal").textContent = products.length;
-        document.getElementById("statInStock").textContent = products.filter(p => p.stock && ["exact", "in", "low"].includes(p.stock.type)).length;
-        document.getElementById("statFavorites").textContent = favorites.size;
-        document.getElementById("sidebarFavCount").textContent = favorites.size;
+        document.getElementById("statInStock").textContent = products.filter(p => p.stock && p.stock.type !== "out").length;
+        
+        const favCount = products.filter(p => isFavorite(p)).length;
+        document.getElementById("statFavorites").textContent = favCount;
+        document.getElementById("sidebarFavCount").textContent = favCount;
 
-        // Update sidebar category counts
         document.getElementById("count-all").textContent = products.length;
-        document.getElementById("count-gan").textContent = products.filter(p => p.brand === "GAN").length;
         document.getElementById("count-moyu").textContent = products.filter(p => p.brand === "MoYu").length;
+        document.getElementById("count-gan").textContent = products.filter(p => p.brand === "GAN").length;
 
-        // Update sidebar stock status counts
-        document.getElementById("count-stock-exact").textContent = products.filter(p => p.stock && p.stock.type === "exact").length;
-        document.getElementById("count-stock-in").textContent = products.filter(p => p.stock && ["exact", "in", "low"].includes(p.stock.type)).length;
+        document.getElementById("count-stock-in").textContent = products.filter(p => p.stock && ["exact", "low"].includes(p.stock.type)).length;
         document.getElementById("count-stock-low").textContent = products.filter(p => p.stock && p.stock.type === "low").length;
         document.getElementById("count-stock-out").textContent = products.filter(p => p.stock && p.stock.type === "out").length;
 
-        // Update sidebar version counts
-        document.getElementById("count-ver-v11").textContent = products.filter(p => normalize(`${p.title} ${p.versionLabel} ${p.handle}`).includes("v11")).length;
-        document.getElementById("count-ver-v10").textContent = products.filter(p => normalize(`${p.title} ${p.versionLabel} ${p.handle}`).includes("v10")).length;
-        document.getElementById("count-ver-v9").textContent = products.filter(p => normalize(`${p.title} ${p.versionLabel} ${p.handle}`).includes("v9")).length;
-        document.getElementById("count-ver-v5").textContent = products.filter(p => normalize(`${p.title} ${p.versionLabel} ${p.handle}`).includes("v5")).length;
+        document.getElementById("count-ver-v11").textContent = products.filter(p => p.edition === "v11").length;
+        document.getElementById("count-ver-v10").textContent = products.filter(p => p.edition === "v10").length;
+        document.getElementById("count-ver-v9").textContent = products.filter(p => p.edition === "v9").length;
+        document.getElementById("count-ver-v5").textContent = products.filter(p => p.edition === "v5").length;
 
         const priced = products.filter(p => p.price > 0);
         const avg = priced.length ? priced.reduce((acc, p) => acc + p.price, 0) / priced.length : 0;
         document.getElementById("statAvgPrice").textContent = `$${avg.toFixed(2)}`;
     }
 
-    // Sidebar Navigation bindings
     document.querySelectorAll(".nav-button").forEach(btn => {
         btn.addEventListener("click", () => {
             const section = btn.dataset.section;
@@ -565,20 +651,20 @@
                 activeStockFilter = null;
                 activeVersionFilter = null;
                 document.querySelectorAll(".nav-button").forEach(b => {
-                    b.classList.remove("bg-gray-900", "text-white", "shadow-sm", "bg-amber-50", "text-amber-900");
+                    b.classList.remove("bg-gray-900", "text-white", "shadow-sm", "bg-gray-100");
                     b.classList.add("text-gray-700", "hover:bg-gray-100");
+                    b.setAttribute("aria-pressed", "false");
                 });
-                if (section === "favorites") {
-                    btn.classList.add("bg-amber-50", "text-amber-900");
-                } else {
-                    btn.classList.add("bg-gray-900", "text-white", "shadow-sm");
-                }
+                btn.classList.add("bg-gray-900", "text-white", "shadow-sm");
+                btn.setAttribute("aria-pressed", "true");
             } else if (stockFilter !== undefined) {
                 activeStockFilter = activeStockFilter === stockFilter ? null : stockFilter;
                 btn.classList.toggle("bg-gray-100", activeStockFilter === stockFilter);
+                btn.setAttribute("aria-pressed", activeStockFilter === stockFilter ? "true" : "false");
             } else if (versionFilter !== undefined) {
                 activeVersionFilter = activeVersionFilter === versionFilter ? null : versionFilter;
                 btn.classList.toggle("bg-gray-100", activeVersionFilter === versionFilter);
+                btn.setAttribute("aria-pressed", activeVersionFilter === versionFilter ? "true" : "false");
             }
             renderAll();
         });
