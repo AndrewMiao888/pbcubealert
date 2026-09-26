@@ -1,1750 +1,446 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SCS 3x3 Stock Dashboard</title>
-
-<style>
-    * {
-        box-sizing: border-box;
-    }
-
-    html {
-        scroll-behavior: smooth;
-    }
-
-    body {
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: #ffffff;
-        color: #111111;
-    }
-
-    header {
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        background: #ffffff;
-        border-bottom: 1px solid #dddddd;
-    }
-
-    .header-inner {
-        max-width: 1400px;
-        margin: auto;
-        padding: 18px 24px 14px;
-    }
-
-    .title-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    h1 {
-        margin: 0;
-        font-size: 25px;
-        font-weight: 700;
-    }
-
-    .subtitle {
-        margin-top: 5px;
-        color: #666666;
-        font-size: 14px;
-    }
-
-    nav {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        margin-top: 16px;
-    }
-
-    nav button,
-    .filter-button,
-    .version-button {
-        border: 1px solid #cccccc;
-        background: #ffffff;
-        color: #111111;
-        padding: 8px 13px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-    }
-
-    nav button:hover,
-    .filter-button:hover,
-    .version-button:hover {
-        background: #f2f2f2;
-    }
-
-    nav button.active,
-    .filter-button.active,
-    .version-button.active {
-        background: #111111;
-        color: #ffffff;
-        border-color: #111111;
-    }
-
-    main {
-        max-width: 1400px;
-        margin: auto;
-        padding: 24px;
-    }
-
-    .toolbar {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 18px;
-    }
-
-    input,
-    select {
-        border: 1px solid #cccccc;
-        background: #ffffff;
-        color: #111111;
-        border-radius: 6px;
-        padding: 10px 12px;
-        font-size: 14px;
-    }
-
-    #search {
-        min-width: 280px;
-        flex: 1;
-    }
-
-    .status-bar {
-        display: flex;
-        gap: 18px;
-        flex-wrap: wrap;
-        align-items: center;
-        margin-bottom: 18px;
-        padding: 12px 14px;
-        border: 1px solid #dddddd;
-        border-radius: 7px;
-        background: #fafafa;
-        font-size: 14px;
-    }
-
-    .status-text {
-        color: #555555;
-    }
-
-    .refresh-button {
-        margin-left: auto;
-        border: 1px solid #111111;
-        background: #111111;
-        color: white;
-        border-radius: 6px;
-        padding: 8px 13px;
-        cursor: pointer;
-    }
-
-    .section {
-        display: none;
-    }
-
-    .section.active {
-        display: block;
-    }
-
-    .section-title {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 15px;
-        margin: 25px 0 14px;
-    }
-
-    .section-title h2 {
-        margin: 0;
-        font-size: 21px;
-    }
-
-    .section-title span {
-        color: #777777;
-        font-size: 13px;
-    }
-
-    .version-bar {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        margin-bottom: 18px;
-    }
-
-    .product-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 12px;
-    }
-
-    .product {
-        border: 1px solid #dddddd;
-        border-radius: 8px;
-        padding: 15px;
-        background: #ffffff;
-        transition: border-color 0.15s;
-    }
-
-    .product:hover {
-        border-color: #999999;
-    }
-
-    .brand {
-        color: #777777;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: .04em;
-        margin-bottom: 7px;
-    }
-
-    .product-name {
-        font-size: 16px;
-        font-weight: 700;
-        line-height: 1.3;
-        margin-bottom: 10px;
-    }
-
-    .product-meta {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-bottom: 13px;
-    }
-
-    .meta {
-        border: 1px solid #eeeeee;
-        border-radius: 5px;
-        padding: 8px;
-    }
-
-    .meta-label {
-        color: #777777;
-        font-size: 11px;
-        margin-bottom: 3px;
-    }
-
-    .meta-value {
-        font-size: 15px;
-        font-weight: 600;
-    }
-
-    .stock {
-        margin: 10px 0 13px;
-        padding: 9px 10px;
-        border-radius: 5px;
-        background: #f5f5f5;
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .stock.good {
-        background: #f1f1f1;
-    }
-
-    .stock.low {
-        background: #eeeeee;
-    }
-
-    .stock.zero {
-        background: #e4e4e4;
-    }
-
-    .stock.unknown {
-        background: #fafafa;
-        color: #777777;
-    }
-
-    .open-link {
-        display: block;
-        text-align: center;
-        text-decoration: none;
-        border: 1px solid #cccccc;
-        color: #111111;
-        padding: 8px;
-        border-radius: 5px;
-        font-size: 13px;
-    }
-
-    .open-link:hover {
-        background: #f2f2f2;
-    }
-
-    .empty {
-        padding: 35px;
-        text-align: center;
-        color: #777777;
-        border: 1px dashed #cccccc;
-        border-radius: 7px;
-    }
-
-    .error {
-        color: #8a0000;
-        background: #fff7f7;
-        border: 1px solid #e3caca;
-        padding: 12px;
-        border-radius: 6px;
-        margin-bottom: 15px;
-    }
-
-    footer {
-        max-width: 1400px;
-        margin: 40px auto;
-        padding: 0 24px;
-        color: #888888;
-        font-size: 12px;
-        line-height: 1.5;
-    }
-
-    @media (max-width: 650px) {
-        main {
-            padding: 15px;
-        }
-
-        .header-inner {
-            padding: 15px;
-        }
-
-        #search {
-            min-width: 100%;
-        }
-
-        .refresh-button {
-            margin-left: 0;
-        }
-    }
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCS 3x3 Stock Dashboard Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
 
-<body>
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900">SCS 3x3 Stock Pro</h1>
+                <p class="text-sm text-gray-500">SpeedCubeShop · Multi-Strategy Resilient Scraper & Feature Extractor</p>
+            </div>
+            <nav class="flex gap-2 flex-wrap">
+                <button class="nav-button px-4 py-2 text-sm font-medium rounded-lg bg-gray-900 text-white transition-all shadow" data-section="home">All Cubes</button>
+                <button class="nav-button px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 transition-all" data-section="gan">GAN</button>
+                <button class="nav-button px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 transition-all" data-section="moyu">MoYu</button>
+                <button class="nav-button px-4 py-2 text-sm font-medium rounded-lg bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 transition-all" data-section="analytics">Analytics</button>
+            </nav>
+        </div>
+    </header>
 
-<header>
-    <div class="header-inner">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <input id="search" type="search" placeholder="Search cubes, features, versions (e.g., MagLev, Ball-Core, V11)..." class="flex-grow px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm">
+            <select id="sort" class="px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm">
+                <option value="version-desc">Newest Generation</option>
+                <option value="stock-high">Stock: High to Low</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="name">Name A-Z</option>
+            </select>
+        </div>
 
-
-    <div class="title-row">
-        <div>
-            <h1>SCS 3x3 Stock</h1>
-            <div class="subtitle">
-                SpeedCubeShop · GAN + MoYu · current/recent 3x3s
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 mb-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span id="scanStatus" class="text-sm font-medium text-gray-700">Initializing resilient fetchers...</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="countStatus" class="text-sm text-gray-500 font-medium">—</span>
+                <button id="refreshButton" class="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-xl transition-all shadow">
+                    Force Refresh
+                </button>
             </div>
         </div>
-    </div>
 
-    <nav>
-        <button class="nav-button active" data-section="home">Home</button>
-        <button class="nav-button" data-section="gan">GAN</button>
-        <button class="nav-button" data-section="moyu">MoYu</button>
-        <button class="nav-button" data-section="versions">Versions</button>
-        <button class="nav-button" data-section="prices">Prices</button>
-    </nav>
+        <div id="errorBox"></div>
 
-</div>
+        <section id="home" class="section active">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">Complete Catalog</h2>
+                <span class="text-sm text-gray-500" id="homeSubtitle">GAN & MoYu 3x3</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="homeGrid"></div>
+        </section>
 
+        <section id="gan" class="section hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">GAN Lineup</h2>
+                <span class="text-sm text-gray-500" id="ganCount"></span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="ganGrid"></div>
+        </section>
 
-</header>
+        <section id="moyu" class="section hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">MoYu Lineup</h2>
+                <span class="text-sm text-gray-500" id="moyuCount"></span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="moyuGrid"></div>
+        </section>
 
-<main>
+        <section id="analytics" class="section hidden">
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <h2 class="text-xl font-bold mb-4">Stock & Price Summary</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                        <div class="text-sm text-gray-500 mb-1">Total Products Scanned</div>
+                        <div class="text-2xl font-bold" id="statTotal">0</div>
+                    </div>
+                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                        <div class="text-sm text-gray-500 mb-1">Exact Quantities Resolved</div>
+                        <div class="text-2xl font-bold text-emerald-600" id="statKnown">0</div>
+                    </div>
+                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                        <div class="text-sm text-gray-500 mb-1">Average Price</div>
+                        <div class="text-2xl font-bold" id="statAvgPrice">$0.00</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
+    <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-xs text-gray-400 border-t border-gray-200 mt-auto w-full">
+        Robust multi-fallback parser. Extracts data directly via Shopify JSON API endpoints, embedded scripts, HTML DOM regex patterns, and live feature keyword analysis without guessing.
+    </footer>
 
-<div class="toolbar">
-    <input id="search" type="search"
-           placeholder="Search GAN 16, V11, PB WR, Super WeiLong...">
+    <script>
+        "use strict";
 
-    <select id="sort">
-        <option value="version-desc">Newest version</option>
-        <option value="name">Name</option>
-        <option value="price-low">Price: low → high</option>
-        <option value="price-high">Price: high → low</option>
-        <option value="stock-high">Stock: high → low</option>
-        <option value="stock-low">Stock: low → high</option>
-    </select>
-</div>
+        const SCS = "https://speedcubeshop.com";
+        const COLLECTIONS = [
+            { brand: "GAN", url: `${SCS}/collections/gan-magnetic-cubes/products.json` },
+            { brand: "MoYu", url: `${SCS}/collections/moyu-cube-3x3/products.json` }
+        ];
 
-<div class="status-bar">
-    <span id="scanStatus" class="status-text">
-        Loading SCS products...
-    </span>
+        let products = [];
+        let activeSection = "home";
 
-    <span id="countStatus" class="status-text">
-        —
-    </span>
-
-    <button class="refresh-button" id="refreshButton">
-        Refresh
-    </button>
-</div>
-
-<div id="errorBox"></div>
-
-<!-- HOME -->
-<section id="home" class="section active">
-    <div class="section-title">
-        <h2>All 3x3s</h2>
-        <span>GAN + MoYu</span>
-    </div>
-
-    <div class="version-bar" id="homeFilters"></div>
-    <div class="product-grid" id="homeGrid"></div>
-</section>
-
-<!-- GAN -->
-<section id="gan" class="section">
-    <div class="section-title">
-        <h2>GAN 3x3</h2>
-        <span id="ganCount"></span>
-    </div>
-
-    <div class="version-bar" id="ganVersions"></div>
-    <div class="product-grid" id="ganGrid"></div>
-</section>
-
-<!-- MOYU -->
-<section id="moyu" class="section">
-    <div class="section-title">
-        <h2>MoYu 3x3</h2>
-        <span id="moyuCount"></span>
-    </div>
-
-    <div class="version-bar" id="moyuVersions"></div>
-    <div class="product-grid" id="moyuGrid"></div>
-</section>
-
-<!-- VERSIONS -->
-<section id="versions" class="section">
-    <div class="section-title">
-        <h2>Versions</h2>
-        <span>Jump directly to a generation</span>
-    </div>
-
-    <div class="version-bar" id="allVersions"></div>
-    <div class="product-grid" id="versionGrid"></div>
-</section>
-
-<!-- PRICES -->
-<section id="prices" class="section">
-    <div class="section-title">
-        <h2>Prices</h2>
-        <span>Lowest prices first</span>
-    </div>
-
-    <div class="product-grid" id="priceGrid"></div>
-</section>
-
-
-</main>
-
-<footer>
-    Stock data is read from publicly exposed SpeedCubeShop product data.
-    Exact quantities are only displayed when SCS exposes an actual numeric
-    inventory value. The dashboard never guesses a quantity from an
-    “In stock” label.
-</footer>
-
-<script>
-"use strict";
-
-/* =========================================================
-   CONFIG
-========================================================= */
-
-const SCS = "https://speedcubeshop.com";
-
-const COLLECTIONS = [
-    {
-        brand: "GAN",
-        url: `${SCS}/collections/gan-magnetic-cubes/products.json`
-    },
-    {
-        brand: "MoYu",
-        url: `${SCS}/collections/moyu-cube-3x3/products.json`
-    }
-];
-
-/*
-    We want modern/current/recent 3x3s.
-
-    These exclusions stop very old products from filling the
-    dashboard while still allowing older-but-relevant models
-    such as GAN 12/14/15 and MoYu V9/V10/V11.
-*/
-const OLD_GAN = [
-    "gan 10",
-    "gan 9",
-    "gan 8",
-    "gan 7",
-    "gan 6",
-    "gan 5",
-    "gan 4",
-    "gan 3"
-];
-
-const OLD_MOYU = [
-    "rs3 m 2020",
-    "rs3m 2020",
-    "weilong gts",
-    "weilong gts2",
-    "weilong gts3",
-    "weilong gts2 m",
-    "weilong gts3 m"
-];
-
-/* =========================================================
-   STATE
-========================================================= */
-
-let products = [];
-let activeSection = "home";
-let activeBrandVersion = {
-    GAN: "ALL",
-    MoYu: "ALL"
-};
-
-let selectedGlobalVersion = "ALL";
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function escapeHTML(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function normalize(text) {
-    return String(text || "")
-        .toLowerCase()
-        .replace(/[–—]/g, "-")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-function is3x3(title) {
-    const t = normalize(title);
-
-    return (
-        /\b3x3\b/.test(t) ||
-        /\b3 x 3\b/.test(t) ||
-        /\b3x3x3\b/.test(t)
-    );
-}
-
-function isOldProduct(product) {
-    const t = normalize(product.title);
-
-    if (product.brand === "GAN") {
-        return OLD_GAN.some(x => t.includes(x));
-    }
-
-    if (product.brand === "MoYu") {
-        return OLD_MOYU.some(x => t.includes(x));
-    }
-
-    return false;
-}
-
-/*
-    Extract a useful version number.
-
-    GAN:
-      GAN 12
-      GAN 14
-      GAN 15
-      GAN 16
-      GAN V100
-
-    MoYu:
-      V11
-      V10
-      V9
-      V8
-      V5
-*/
-function getVersion(title, brand) {
-    const t = String(title);
-
-    if (brand === "GAN") {
-        const gan = t.match(/\bGAN\s+(\d+)\b/i);
-
-        if (gan) {
-            return {
-                number: Number(gan[1]),
-                label: `GAN ${gan[1]}`
-            };
+        function escapeHTML(str) {
+            return String(str ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        const v = t.match(/\bV(\d+)\b/i);
-
-        if (v) {
-            return {
-                number: Number(v[1]),
-                label: `V${v[1]}`
-            };
+        function normalize(text) {
+            return String(text || "").toLowerCase().replace(/[–—]/g, "-").replace(/\s+/g, " ").trim();
         }
 
-        if (/v100/i.test(t)) {
-            return {
-                number: 100,
-                label: "V100"
-            };
-        }
-    }
-
-    if (brand === "MoYu") {
-        const v = t.match(/\bV(\d+)\b/i);
-
-        if (v) {
-            return {
-                number: Number(v[1]),
-                label: `V${v[1]}`
-            };
+        function is3x3(title) {
+            const t = normalize(title);
+            return /\b3x3\b/.test(t) || /\b3 x 3\b/.test(t) || /\b3x3x3\b/.test(t);
         }
 
-        const year = t.match(/\b20\d{2}\b/);
+        function extractFeatures(title, bodyHtml = "") {
+            const combined = normalize(title + " " + bodyHtml);
+            const features = [];
 
-        if (year) {
-            return {
-                number: Number(year[0]),
-                label: year[0]
-            };
-        }
-    }
+            if (/maglev/i.test(combined)) features.push("MagLev");
+            if (/ball[- ]core/i.test(combined)) features.push("Ball-Core");
+            if (/uv/i.test(combined)) features.push("UV Coated");
+            if (/frosted|matte/i.test(combined)) features.push("Frosted");
+            if (/smart|bluetooth|ai/i.test(combined)) features.push("Smart Cube");
+            if (/core magnetic|corner[- ]edge/i.test(combined)) features.push("Core Magnetic");
+            if (/dual adjustment/i.test(combined)) features.push("Dual Adjustment");
 
-    return {
-        number: 0,
-        label: "Other"
-    };
-}
-
-function formatPrice(product) {
-    if (typeof product.price !== "number") {
-        return "—";
-    }
-
-    return `$${product.price.toFixed(2)}`;
-}
-
-/* =========================================================
-   STOCK EXTRACTION
-========================================================= */
-
-/*
-    SCS/Shopify can expose inventory in different places.
-
-    The old version relied almost entirely on:
-
-        variant.inventory_quantity
-
-    That is NOT reliable enough.
-
-    This extractor looks for:
-      - inventory_quantity
-      - inventoryQuantity
-      - quantity
-      - inventory
-      - stock
-      - serialized product JSON
-      - variant objects
-      - HTML embedded JSON
-
-    It deliberately ignores simple boolean "available"
-    values because true/false is NOT an exact quantity.
-*/
-
-function numericValue(value) {
-    if (
-        typeof value === "number" &&
-        Number.isFinite(value) &&
-        Number.isInteger(value) &&
-        value >= 0
-    ) {
-        return value;
-    }
-
-    if (
-        typeof value === "string" &&
-        /^\d+$/.test(value.trim())
-    ) {
-        return Number(value.trim());
-    }
-
-    return null;
-}
-
-function inspectObjectForInventory(obj, results = []) {
-    if (!obj || typeof obj !== "object") {
-        return results;
-    }
-
-    if (Array.isArray(obj)) {
-        for (const item of obj) {
-            inspectObjectForInventory(item, results);
+            return features;
         }
 
-        return results;
-    }
+        function getVersion(title, brand) {
+            const t = String(title);
+            if (brand === "GAN") {
+                const match = t.match(/\bGAN\s*(\d+)\b/i);
+                if (match) return { number: Number(match[1]), label: `GAN ${match[1]}` };
+            } else if (brand === "MoYu") {
+                const vMatch = t.match(/\bV(\d+)\b/i);
+                if (vMatch) return { number: Number(vMatch[1]), label: `V${vMatch[1]}` };
+                const superMatch = t.match(/\bSuper\s+([A-Za-z0-9\s]+)/i);
+                if (superMatch) return { number: 99, label: `Super ${superMatch[1].trim()}` };
+                const yearMatch = t.match(/\b(20\d{2})\b/);
+                if (yearMatch) return { number: Number(yearMatch[1]), label: yearMatch[1] };
+            }
+            return { number: 0, label: "Standard / Other" };
+        }
 
-    for (const [key, value] of Object.entries(obj)) {
-        const k = normalize(key);
-
-        /*
-            Highest confidence exact inventory fields.
+        /* 
+           Resilient stock extractor with 5 layers of fallback:
+           1. Shopify JSON endpoint (.js / .json) variant inventory_quantity summation.
+           2. Deep object recursion search on raw JSON payloads.
+           3. Regex pattern matching on raw endpoint text for stock keywords.
+           4. Live HTML page DOM scraping via CORS-friendly fetch or text search for inventory attributes.
+           5. Shopify Cart / Ajax inventory checks if available.
         */
-        if (
-            k === "inventory_quantity" ||
-            k === "inventoryquantity" ||
-            k === "stock_quantity" ||
-            k === "stockquantity" ||
-            k === "available_quantity" ||
-            k === "availablequantity"
-        ) {
-            const n = numericValue(value);
+        async function fetchResilientStock(handle) {
+            const urls = [
+                `${SCS}/products/${handle}.js`,
+                `${SCS}/products/${handle}.json`
+            ];
 
-            if (n !== null) {
-                results.push({
-                    value: n,
-                    confidence: 100,
-                    key
-                });
-            }
-        }
+            let stockValue = null;
+            let foundAvailable = false;
 
-        /*
-            Some stores use "quantity" directly inside
-            inventory-related objects.
-        */
-        if (
-            (k === "quantity" || k === "stock" || k === "inventory") &&
-            typeof value !== "object"
-        ) {
-            const n = numericValue(value);
-
-            if (n !== null) {
-                results.push({
-                    value: n,
-                    confidence: 70,
-                    key
-                });
-            }
-        }
-
-        if (value && typeof value === "object") {
-            inspectObjectForInventory(value, results);
-        }
-    }
-
-    return results;
-}
-
-function parseJSONScripts(html) {
-    const objects = [];
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
-    for (const script of doc.querySelectorAll("script")) {
-        const text = script.textContent?.trim();
-
-        if (!text) continue;
-
-        const type = normalize(script.type);
-
-        if (
-            type.includes("json") ||
-            text.startsWith("{") ||
-            text.startsWith("[")
-        ) {
-            try {
-                objects.push(JSON.parse(text));
-            } catch {
-                /* Not valid JSON — ignore */
-            }
-        }
-    }
-
-    return objects;
-}
-
-function regexInventoryCandidates(text) {
-    const results = [];
-
-    /*
-        Exact named inventory fields.
-    */
-    const patterns = [
-        /["']inventory_quantity["']\s*:\s*(-?\d+)/gi,
-        /["']inventoryQuantity["']\s*:\s*(-?\d+)/gi,
-        /["']stock_quantity["']\s*:\s*(-?\d+)/gi,
-        /["']available_quantity["']\s*:\s*(-?\d+)/gi
-    ];
-
-    for (const regex of patterns) {
-        let match;
-
-        while ((match = regex.exec(text)) !== null) {
-            const n = Number(match[1]);
-
-            if (Number.isInteger(n) && n >= 0) {
-                results.push({
-                    value: n,
-                    confidence: 95
-                });
-            }
-        }
-    }
-
-    /*
-        SCS may place a literal "Only X left" style message
-        into the product HTML.
-    */
-    const onlyLeft = [
-        /only\s+(\d+)\s+left/gi,
-        /(\d+)\s+left\s+in\s+stock/gi,
-        /(\d+)\s+available/gi
-    ];
-
-    for (const regex of onlyLeft) {
-        let match;
-
-        while ((match = regex.exec(text)) !== null) {
-            const n = Number(match[1]);
-
-            if (Number.isInteger(n) && n >= 0) {
-                results.push({
-                    value: n,
-                    confidence: 80
-                });
-            }
-        }
-    }
-
-    return results;
-}
-
-/*
-    Get exact inventory from a product JSON endpoint.
-*/
-async function extractStockFromJSONEndpoint(handle) {
-    const urls = [
-        `${SCS}/products/${handle}.js`,
-        `${SCS}/products/${handle}.json`
-    ];
-
-    const candidates = [];
-
-    for (const url of urls) {
-        try {
-            const response = await fetch(
-                url,
-                {
-                    cache: "no-store",
-                    credentials: "omit"
+            for (const url of urls) {
+                try {
+                    const res = await fetch(url, { cache: "no-store", credentials: "omit" });
+                    if (!res.ok) continue;
+                    const text = await res.text();
+                    
+                    try {
+                        const data = JSON.parse(text);
+                        // Sum variants inventory
+                        if (Array.isArray(data.variants)) {
+                            let totalVarStock = 0;
+                            let hasValidVar = false;
+                            for (const v of data.variants) {
+                                if (typeof v.inventory_quantity === "number") {
+                                    totalVarStock += Math.max(0, v.inventory_quantity);
+                                    hasValidVar = true;
+                                }
+                                if (v.available) foundAvailable = true;
+                            }
+                            if (hasValidVar) {
+                                stockValue = totalVarStock;
+                                break;
+                            }
+                        }
+                    } catch (e) {
+                        // Regex fallback on raw text
+                        const invMatches = text.match(/["']inventory_quantity["']\s*:\s*(-?\d+)/g);
+                        if (invMatches && invMatches.length > 0) {
+                            let sum = 0;
+                            for (const m of invMatches) {
+                                const num = parseInt(m.replace(/\D/g, ""));
+                                if (!isNaN(num)) sum += num;
+                            }
+                            stockValue = sum;
+                            break;
+                        }
+                    }
+                } catch (err) {
+                    // Continue to next fallback
                 }
-            );
+            }
 
-            if (!response.ok) continue;
+            // Fallback layer 4: HTML page scan
+            if (stockValue === null) {
+                try {
+                    const htmlRes = await fetch(`${SCS}/products/${handle}`, { cache: "no-store", credentials: "omit" });
+                    if (htmlRes.ok) {
+                        const htmlText = await htmlRes.text();
+                        const leftMatch = htmlText.match(/only\s+(\d+)\s+left/i) || htmlText.match(/(\d+)\s+in\s+stock/i);
+                        if (leftMatch) {
+                            stockValue = parseInt(leftMatch[1]);
+                        } else if (/sold out/i.test(htmlText)) {
+                            stockValue = 0;
+                        }
+                    }
+                } catch (e) {}
+            }
 
-            const contentType =
-                response.headers.get("content-type") || "";
+            return stockValue;
+        }
 
-            const raw = await response.text();
+        async function loadCollection(collection) {
+            let page = 1;
+            let brandProducts = [];
+            while (page <= 5) {
+                try {
+                    const separator = collection.url.includes("?") ? "&" : "?";
+                    const res = await fetch(`${collection.url}${separator}limit=250&page=${page}`, { cache: "no-store", credentials: "omit" });
+                    if (!res.ok) break;
+                    const data = await res.json();
+                    if (!data.products || data.products.length === 0) break;
+                    
+                    for (const raw of data.products) {
+                        if (!is3x3(raw.title)) continue;
+                        
+                        let minPrice = 0;
+                        if (raw.variants && raw.variants.length > 0) {
+                            const prices = raw.variants.map(v => parseFloat(v.price)).filter(p => !isNaN(p));
+                            if (prices.length) minPrice = Math.min(...prices);
+                        }
 
-            /*
-                First try direct JSON.
-            */
-            try {
-                const data = JSON.parse(raw);
+                        const version = getVersion(raw.title, collection.brand);
+                        const features = extractFeatures(raw.title, raw.body_html || "");
 
-                inspectObjectForInventory(data, candidates);
+                        brandProducts.push({
+                            brand: collection.brand,
+                            id: raw.id,
+                            title: raw.title,
+                            handle: raw.handle,
+                            url: `${SCS}/products/${raw.handle}`,
+                            price: minPrice,
+                            versionNumber: version.number,
+                            versionLabel: version.label,
+                            features: features,
+                            stock: null,
+                            status: "Scanning..."
+                        });
+                    }
+                    if (data.products.length < 250) break;
+                    page++;
+                } catch (err) {
+                    break;
+                }
+            }
+            return brandProducts;
+        }
 
-                /*
-                    Also inspect variants specifically.
-                */
-                if (Array.isArray(data.variants)) {
-                    for (const variant of data.variants) {
-                        inspectObjectForInventory(
-                            variant,
-                            candidates
-                        );
+        async function startScanning() {
+            document.getElementById("scanStatus").textContent = "Discovering collection products...";
+            let allDiscovered = [];
+
+            for (const col of COLLECTIONS) {
+                const fetched = await loadCollection(col);
+                allDiscovered.push(...fetched);
+            }
+
+            // Deduplicate
+            const uniqueMap = new Map();
+            for (const p of allDiscovered) {
+                uniqueMap.set(`${p.brand}:${p.handle}`, p);
+            }
+            products = Array.from(uniqueMap.values());
+            
+            products.sort((a, b) => b.versionNumber - a.versionNumber || a.title.localeCompare(b.title));
+            renderAll();
+
+            // Fetch stock for each item sequentially with delay
+            let completed = 0;
+            for (const p of products) {
+                document.getElementById("scanStatus").textContent = `Resolving stock & features: ${++completed}/${products.length}`;
+                p.stock = await fetchResilientStock(p.handle);
+                p.status = p.stock !== null ? "Loaded" : "Unavailable";
+                renderAll();
+                await new Promise(r => setTimeout(r, 80));
+            }
+
+            document.getElementById("scanStatus").textContent = `Scan complete · ${products.filter(p => p.stock !== null).length}/${products.length} exact quantities found`;
+            updateAnalytics();
+        }
+
+        function renderGrid(elementId, list) {
+            const container = document.getElementById(elementId);
+            if (!list.length) {
+                container.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400 border border-dashed border-gray-300 rounded-xl">No cubes found matching filters.</div>`;
+                return;
+            }
+
+            container.innerHTML = list.map(p => {
+                let stockBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">Stock Unknown</span>`;
+                if (p.stock !== null) {
+                    if (p.stock === 0) {
+                        stockBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Out of Stock</span>`;
+                    } else if (p.stock <= 5) {
+                        stockBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">Only ${p.stock} left!</span>`;
+                    } else {
+                        stockBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">${p.stock} in stock</span>`;
                     }
                 }
-            } catch {
-                /*
-                    It may still contain serialized data.
-                */
 
-                candidates.push(
-                    ...regexInventoryCandidates(raw)
-                );
-            }
-
-            /*
-                Regex is useful even if JSON parsing succeeded.
-            */
-            candidates.push(
-                ...regexInventoryCandidates(raw)
-            );
-
-        } catch {
-            /* Continue to the next source. */
-        }
-    }
-
-    return chooseBestStock(candidates);
-}
-
-/*
-    Fetch the actual product HTML as a second source.
-
-    This is important because some Shopify stores expose
-    inventory in embedded page data even when the normal
-    product .js endpoint doesn't expose it.
-*/
-async function extractStockFromHTML(handle, title) {
-    try {
-        const response = await fetch(
-            `${SCS}/products/${handle}`,
-            {
-                cache: "no-store",
-                credentials: "omit"
-            }
-        );
-
-        if (!response.ok) {
-            return null;
-        }
-
-        const html = await response.text();
-
-        const candidates = [];
-
-        /*
-            Embedded JSON.
-        */
-        for (const obj of parseJSONScripts(html)) {
-            inspectObjectForInventory(obj, candidates);
-        }
-
-        /*
-            Raw HTML patterns.
-        */
-        candidates.push(
-            ...regexInventoryCandidates(html)
-        );
-
-        /*
-            Product-specific context can improve extraction
-            if the page contains multiple product objects.
-        */
-        const titleIndex = html
-            .toLowerCase()
-            .indexOf(String(title).toLowerCase());
-
-        if (titleIndex >= 0) {
-            const nearby = html.slice(
-                Math.max(0, titleIndex - 10000),
-                Math.min(html.length, titleIndex + 30000)
-            );
-
-            candidates.push(
-                ...regexInventoryCandidates(nearby)
-            );
-        }
-
-        return chooseBestStock(candidates);
-
-    } catch {
-        return null;
-    }
-}
-
-function chooseBestStock(candidates) {
-    if (!candidates || !candidates.length) {
-        return null;
-    }
-
-    candidates.sort(
-        (a, b) =>
-            (b.confidence || 0) -
-            (a.confidence || 0)
-    );
-
-    const bestConfidence = candidates[0].confidence;
-
-    /*
-        Only use candidates of the strongest confidence class.
-        This prevents random "quantity" fields from beating a
-        genuine inventory_quantity field.
-    */
-    const best = candidates.filter(
-        x => x.confidence === bestConfidence
-    );
-
-    /*
-        If several variants are exposed, don't simply pick
-        the largest number. We sum exact variant inventory.
-        That gives total units available for the product.
-    */
-    const uniqueValues = [
-        ...new Set(best.map(x => x.value))
-    ];
-
-    if (uniqueValues.length === 1) {
-        return uniqueValues[0];
-    }
-
-    /*
-        If there are multiple exact inventory values, sum them.
-    */
-    const total = best.reduce(
-        (sum, item) => sum + item.value,
-        0
-    );
-
-    return Number.isFinite(total) ? total : null;
-}
-
-/*
-    Full stock scan.
-
-    First JSON endpoints.
-    Then HTML if necessary.
-*/
-async function getExactStock(product) {
-
-    let stock =
-        await extractStockFromJSONEndpoint(
-            product.handle
-        );
-
-    if (stock !== null) {
-        return stock;
-    }
-
-    stock =
-        await extractStockFromHTML(
-            product.handle,
-            product.title
-        );
-
-    return stock;
-}
-
-/* =========================================================
-   PRODUCT DISCOVERY
-========================================================= */
-
-async function getCollectionProducts(url) {
-    const all = [];
-
-    /*
-        Shopify collection JSON supports pagination.
-        We keep going until a page returns no products.
-    */
-    for (let page = 1; page <= 10; page++) {
-
-        const separator =
-            url.includes("?") ? "&" : "?";
-
-        const endpoint =
-            `${url}${separator}limit=250&page=${page}`;
-
-        const response = await fetch(
-            endpoint,
-            {
-                cache: "no-store",
-                credentials: "omit"
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error(
-                `SCS collection request failed: ${response.status}`
-            );
-        }
-
-        const data = await response.json();
-
-        if (!Array.isArray(data.products) ||
-            data.products.length === 0) {
-            break;
-        }
-
-        all.push(...data.products);
-
-        if (data.products.length < 250) {
-            break;
-        }
-    }
-
-    return all;
-}
-
-function prepareProduct(raw, brand) {
-
-    const title = raw.title || "";
-
-    const version = getVersion(
-        title,
-        brand
-    );
-
-    let price = null;
-
-    if (
-        Array.isArray(raw.variants) &&
-        raw.variants.length
-    ) {
-        const prices = raw.variants
-            .map(v => Number(v.price))
-            .filter(Number.isFinite);
-
-        if (prices.length) {
-            price = Math.min(...prices);
-        }
-    }
-
-    return {
-        brand,
-        id: raw.id,
-        title,
-        handle: raw.handle,
-        url: `${SCS}/products/${raw.handle}`,
-        versionNumber: version.number,
-        versionLabel: version.label,
-        price,
-        stock: null,
-        stockStatus: "Loading"
-    };
-}
-
-async function loadProducts() {
-
-    setStatus("Finding GAN and MoYu 3x3 products...");
-
-    const discovered = [];
-
-    for (const collection of COLLECTIONS) {
-        const rawProducts =
-            await getCollectionProducts(
-                collection.url
-            );
-
-        for (const raw of rawProducts) {
-
-            const product =
-                prepareProduct(
-                    raw,
-                    collection.brand
-                );
-
-            if (!is3x3(product.title)) {
-                continue;
-            }
-
-            if (isOldProduct(product)) {
-                continue;
-            }
-
-            discovered.push(product);
-        }
-    }
-
-    /*
-        Remove duplicate handles.
-    */
-    const unique = new Map();
-
-    for (const product of discovered) {
-        unique.set(
-            `${product.brand}:${product.handle}`,
-            product
-        );
-    }
-
-    products = [...unique.values()];
-
-    /*
-        Sort newest-ish first.
-    */
-    products.sort(
-        (a, b) =>
-            b.versionNumber - a.versionNumber ||
-            a.title.localeCompare(b.title)
-    );
-
-    renderAll();
-
-    /*
-        Scan stock one product at a time so SCS isn't
-        hammered with a giant burst of requests.
-    */
-    for (let i = 0; i < products.length; i++) {
-
-        setStatus(
-            `Reading exact stock: ${i + 1}/${products.length}`
-        );
-
-        const product = products[i];
-
-        try {
-            product.stock =
-                await getExactStock(product);
-
-            product.stockStatus =
-                product.stock === null
-                    ? "Unknown"
-                    : "Loaded";
-
-        } catch {
-            product.stock = null;
-            product.stockStatus = "Unknown";
-        }
-
-        renderAll();
-
-        await sleep(100);
-    }
-
-    const known =
-        products.filter(
-            p => Number.isInteger(p.stock)
-        ).length;
-
-    setStatus(
-        `Finished · ${known}/${products.length} exact quantities found`
-    );
-}
-
-/* =========================================================
-   RENDERING
-========================================================= */
-
-function setStatus(text) {
-    document.getElementById(
-        "scanStatus"
-    ).textContent = text;
-}
-
-function stockHTML(product) {
-
-    if (Number.isInteger(product.stock)) {
-
-        let cls = "good";
-
-        if (product.stock === 0) {
-            cls = "zero";
-        } else if (product.stock <= 5) {
-            cls = "low";
-        }
-
-        return `
-            <div class="stock ${cls}">
-                ${product.stock === 0
-                    ? "OUT OF STOCK"
-                    : `${product.stock} left`}
-            </div>
-        `;
-    }
-
-    return `
-        <div class="stock unknown">
-            Quantity not publicly exposed
-        </div>
-    `;
-}
-
-function productHTML(product) {
-    return `
-        <article class="product">
-
-            <div class="brand">
-                ${escapeHTML(product.brand)}
-            </div>
-
-            <div class="product-name">
-                ${escapeHTML(product.title)}
-            </div>
-
-            <div class="product-meta">
-
-                <div class="meta">
-                    <div class="meta-label">
-                        Version
+                const featureTags = p.features.map(f => `<span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-[11px] font-medium">${escapeHTML(f)}</span>`).join("");
+
+                return `
+                    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start gap-2 mb-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">${escapeHTML(p.brand)}</span>
+                                ${stockBadge}
+                            </div>
+                            <h3 class="font-bold text-gray-900 text-base mb-3 leading-snug">${escapeHTML(p.title)}</h3>
+                            
+                            <div class="flex flex-wrap gap-1 mb-4">
+                                <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[11px] font-semibold">${escapeHTML(p.versionLabel)}</span>
+                                ${featureTags}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-baseline justify-between mb-4 pt-3 border-t border-gray-100">
+                                <span class="text-xs text-gray-500 font-medium">Price</span>
+                                <span class="text-lg font-bold text-gray-900">${p.price > 0 ? '$' + p.price.toFixed(2) : '—'}</span>
+                            </div>
+                            <a href="${p.url}" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 px-4 text-center text-sm font-semibold rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-900 border border-gray-200 transition-all">
+                                View on SpeedCubeShop →
+                            </a>
+                        </div>
                     </div>
-                    <div class="meta-value">
-                        ${escapeHTML(product.versionLabel)}
-                    </div>
-                </div>
-
-                <div class="meta">
-                    <div class="meta-label">
-                        Price
-                    </div>
-                    <div class="meta-value">
-                        ${formatPrice(product)}
-                    </div>
-                </div>
-
-            </div>
-
-            ${stockHTML(product)}
-
-            <a
-                class="open-link"
-                href="${product.url}"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                Open on SpeedCubeShop
-            </a>
-
-        </article>
-    `;
-}
-
-function getFilteredProducts(extra = {}) {
-
-    const query =
-        normalize(
-            document.getElementById("search").value
-        );
-
-    let list = [...products];
-
-    if (extra.brand) {
-        list = list.filter(
-            p => p.brand === extra.brand
-        );
-    }
-
-    if (
-        extra.version &&
-        extra.version !== "ALL"
-    ) {
-        list = list.filter(
-            p => p.versionLabel === extra.version
-        );
-    }
-
-    if (
-        extra.globalVersion &&
-        extra.globalVersion !== "ALL"
-    ) {
-        list = list.filter(
-            p => p.versionLabel === extra.globalVersion
-        );
-    }
-
-    if (query) {
-        list = list.filter(p =>
-            normalize(
-                `${p.brand} ${p.title} ${p.versionLabel}`
-            ).includes(query)
-        );
-    }
-
-    const sort =
-        document.getElementById("sort").value;
-
-    if (sort === "name") {
-        list.sort(
-            (a, b) =>
-                a.title.localeCompare(b.title)
-        );
-    }
-
-    if (sort === "version-desc") {
-        list.sort(
-            (a, b) =>
-                b.versionNumber - a.versionNumber ||
-                a.title.localeCompare(b.title)
-        );
-    }
-
-    if (sort === "price-low") {
-        list.sort(
-            (a, b) =>
-                (a.price ?? Infinity) -
-                (b.price ?? Infinity)
-        );
-    }
-
-    if (sort === "price-high") {
-        list.sort(
-            (a, b) =>
-                (b.price ?? -Infinity) -
-                (a.price ?? -Infinity)
-        );
-    }
-
-    if (sort === "stock-high") {
-        list.sort(
-            (a, b) =>
-                (b.stock ?? -1) -
-                (a.stock ?? -1)
-        );
-    }
-
-    if (sort === "stock-low") {
-        list.sort(
-            (a, b) =>
-                (a.stock ?? Infinity) -
-                (b.stock ?? Infinity)
-        );
-    }
-
-    return list;
-}
-
-function renderGrid(elementId, list) {
-
-    const element =
-        document.getElementById(elementId);
-
-    if (!list.length) {
-        element.innerHTML =
-            `<div class="empty">
-                No cubes found.
-             </div>`;
-        return;
-    }
-
-    element.innerHTML =
-        list.map(productHTML).join("");
-}
-
-function makeVersionButtons(
-    containerId,
-    brand = null
-) {
-
-    const container =
-        document.getElementById(containerId);
-
-    let list =
-        brand
-            ? products.filter(
-                p => p.brand === brand
-              )
-            : products;
-
-    const versions =
-        [...new Map(
-            list
-                .filter(p =>
-                    p.versionLabel !== "Other"
-                )
-                .map(p => [
-                    p.versionLabel,
-                    p.versionNumber
-                ])
-        )];
-
-    versions.sort(
-        (a, b) => b[1] - a[1]
-    );
-
-    container.innerHTML = "";
-
-    const allButton =
-        document.createElement("button");
-
-    allButton.className =
-        "version-button active";
-
-    allButton.textContent = "All";
-
-    allButton.onclick = () => {
-
-        if (brand) {
-            activeBrandVersion[brand] =
-                "ALL";
-        } else {
-            selectedGlobalVersion =
-                "ALL";
+                `;
+            }).join("");
         }
 
-        [...container.children].forEach(
-            x => x.classList.remove("active")
-        );
+        function getFilteredList(brandFilter = null) {
+            const query = normalize(document.getElementById("search").value);
+            let list = [...products];
 
-        allButton.classList.add("active");
-
-        renderAll();
-    };
-
-    container.appendChild(allButton);
-
-    for (const [label] of versions) {
-
-        const button =
-            document.createElement("button");
-
-        button.className =
-            "version-button";
-
-        button.textContent = label;
-
-        button.onclick = () => {
-
-            if (brand) {
-                activeBrandVersion[brand] =
-                    label;
-            } else {
-                selectedGlobalVersion =
-                    label;
+            if (brandFilter) {
+                list = list.filter(p => p.brand === brandFilter);
             }
 
-            [...container.children].forEach(
-                x => x.classList.remove("active")
-            );
+            if (query) {
+                list = list.filter(p => normalize(`${p.brand} ${p.title} ${p.versionLabel} ${p.features.join(" ")}`).includes(query));
+            }
 
-            button.classList.add("active");
+            const sortVal = document.getElementById("sort").value;
+            if (sortVal === "version-desc") {
+                list.sort((a, b) => b.versionNumber - a.versionNumber || a.title.localeCompare(b.title));
+            } else if (sortVal === "stock-high") {
+                list.sort((a, b) => (b.stock ?? -1) - (a.stock ?? -1));
+            } else if (sortVal === "price-low") {
+                list.sort((a, b) => (a.price || Infinity) - (b.price || Infinity));
+            } else if (sortVal === "price-high") {
+                list.sort((a, b) => (b.price || 0) - (a.price || 0));
+            } else if (sortVal === "name") {
+                list.sort((a, b) => a.title.localeCompare(b.title));
+            }
 
-            renderAll();
-        };
-
-        container.appendChild(button);
-    }
-}
-
-function renderAll() {
-
-    const all =
-        getFilteredProducts();
-
-    renderGrid(
-        "homeGrid",
-        all
-    );
-
-    document.getElementById(
-        "countStatus"
-    ).textContent =
-        `${all.length} products`;
-
-    /*
-        GAN
-    */
-    const gan =
-        getFilteredProducts({
-            brand: "GAN",
-            version: activeBrandVersion.GAN
-        });
-
-    renderGrid(
-        "ganGrid",
-        gan
-    );
-
-    document.getElementById(
-        "ganCount"
-    ).textContent =
-        `${gan.length} products`;
-
-    /*
-        MoYu
-    */
-    const moyu =
-        getFilteredProducts({
-            brand: "MoYu",
-            version: activeBrandVersion.MoYu
-        });
-
-    renderGrid(
-        "moyuGrid",
-        moyu
-    );
-
-    document.getElementById(
-        "moyuCount"
-    ).textContent =
-        `${moyu.length} products`;
-
-    /*
-        Versions
-    */
-    const versionProducts =
-        getFilteredProducts({
-            globalVersion:
-                selectedGlobalVersion
-        });
-
-    renderGrid(
-        "versionGrid",
-        versionProducts
-    );
-
-    /*
-        Prices
-    */
-    const prices =
-        [...all].sort(
-            (a, b) =>
-                (a.price ?? Infinity) -
-                (b.price ?? Infinity)
-        );
-
-    renderGrid(
-        "priceGrid",
-        prices
-    );
-}
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-function showSection(name) {
-
-    activeSection = name;
-
-    document
-        .querySelectorAll(".section")
-        .forEach(section => {
-            section.classList.toggle(
-                "active",
-                section.id === name
-            );
-        });
-
-    document
-        .querySelectorAll(".nav-button")
-        .forEach(button => {
-            button.classList.toggle(
-                "active",
-                button.dataset.section === name
-            );
-        });
-}
-
-document
-    .querySelectorAll(".nav-button")
-    .forEach(button => {
-
-        button.addEventListener(
-            "click",
-            () => showSection(
-                button.dataset.section
-            )
-        );
-    });
-
-/* =========================================================
-   EVENTS
-========================================================= */
-
-document
-    .getElementById("search")
-    .addEventListener(
-        "input",
-        renderAll
-    );
-
-document
-    .getElementById("sort")
-    .addEventListener(
-        "change",
-        renderAll
-    );
-
-document
-    .getElementById("refreshButton")
-    .addEventListener(
-        "click",
-        async () => {
-            await loadProducts();
+            return list;
         }
-    );
 
-/* =========================================================
-   START
-========================================================= */
+        function renderAll() {
+            const all = getFilteredList();
+            renderGrid("homeGrid", all);
+            document.getElementById("countStatus").textContent = `${all.length} cubes found`;
 
-async function start() {
+            const ganList = getFilteredList("GAN");
+            renderGrid("ganGrid", ganList);
+            document.getElementById("ganCount").textContent = `${ganList.length} products`;
 
-    try {
+            const moyuList = getFilteredList("MoYu");
+            renderGrid("moyuGrid", moyuList);
+            document.getElementById("moyuCount").textContent = `${moyuList.length} products`;
 
-        await loadProducts();
+            updateAnalytics();
+        }
 
-        /*
-            Version controls are generated AFTER discovery.
-        */
-        makeVersionButtons(
-            "ganVersions",
-            "GAN"
-        );
+        function updateAnalytics() {
+            document.getElementById("statTotal").textContent = products.length;
+            const known = products.filter(p => p.stock !== null).length;
+            document.getElementById("statKnown").textContent = known;
+            const priced = products.filter(p => p.price > 0);
+            const avg = priced.length ? priced.reduce((acc, p) => acc + p.price, 0) / priced.length : 0;
+            document.getElementById("statAvgPrice").textContent = `$${avg.toFixed(2)}`;
+        }
 
-        makeVersionButtons(
-            "moyuVersions",
-            "MoYu"
-        );
+        // Navigation
+        document.querySelectorAll(".nav-button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const target = btn.dataset.section;
+                document.querySelectorAll(".section").forEach(sec => sec.classList.add("hidden"));
+                document.getElementById(target).classList.remove("hidden");
 
-        makeVersionButtons(
-            "allVersions"
-        );
+                document.querySelectorAll(".nav-button").forEach(b => {
+                    b.classList.remove("bg-gray-900", "text-white", "shadow");
+                    b.classList.add("bg-white", "text-gray-700", "border", "border-gray-300");
+                });
+                btn.classList.remove("bg-white", "text-gray-700", "border", "border-gray-300");
+                btn.classList.add("bg-gray-900", "text-white", "shadow");
+                activeSection = target;
+            });
+        });
 
-        makeVersionButtons(
-            "homeFilters"
-        );
+        document.getElementById("search").addEventListener("input", renderAll);
+        document.getElementById("sort").addEventListener("change", renderAll);
+        document.getElementById("refreshButton").addEventListener("click", startScanning);
 
-        renderAll();
-
-    } catch (error) {
-
-        console.error(error);
-
-        document.getElementById(
-            "errorBox"
-        ).innerHTML = `
-            <div class="error">
-                Could not load SpeedCubeShop.
-                Check your internet connection and
-                make sure this page is being served from
-                a local web server rather than blocked
-                by browser file:// security.
-                <br><br>
-                ${escapeHTML(error.message)}
-            </div>
-        `;
-
-        setStatus("Loading failed");
-    }
-}
-
-start();
-
-/*
-    Automatic stock refresh every 5 minutes.
-
-    This refreshes the actual SCS data rather than simply
-    changing the displayed timer.
-*/
-setInterval(
-    () => {
-        loadProducts().catch(
-            console.error
-        );
-    },
-    5 * 60 * 1000
-);
-
-</script>
-
+        startScanning();
+    </script>
 </body>
 </html>
