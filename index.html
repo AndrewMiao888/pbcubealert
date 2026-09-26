@@ -152,8 +152,8 @@
             <select id="sort" class="px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900 focus:outline-none text-sm shadow-sm">
                 <option value="version-desc">Newest Generation First</option>
                 <option value="stock-high">Stock: High to Low</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
+                <option value="price-low">  Low to High</option>
+                <option value="price-high">  High to Low</option>
                 <option value="name">Name A-Z</option>
             </select>
         </div>
@@ -206,21 +206,21 @@
 
     // Curated offline-first database with exact structured metadata (duplicate PB WR removed)
     const KNOWN_CUBES = [
-        { brand: "MoYu", title: "MoYu PB WR 3x3 (Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated)", handle: PB_WR_HANDLE, price: 49.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v11", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 311 },
-        { brand: "MoYu", title: "WeiLong AI 3×3 V11 Guided Recovery Edition", handle: "moyu-weilong-ai-3x3-v11-guided-recovery-edition", price: 125.95, variant: "Magnetic, MagLev, Ball-Core, Bluetooth Smart Cube", edition: "v11", isMagLev: true, isBallCore: true, isUV: true, isSmart: true, versionNumber: 311 },
-        { brand: "MoYu", title: "WeiLong 3×3 V11 18th Anniversary", handle: "moyu-weilong-3x3-v11-18th-anniversary", price: 59.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v11", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 311 },
-        { brand: "MoYu", title: "WeiLong 3×3 V11", handle: "moyu-weilong-3x3-v11-magnetic-ball-core-uv-coated", price: 41.95, variant: "Magnetic, Ball-Core, UV Coated", edition: "v11", isMagLev: false, isBallCore: true, isUV: true, isSmart: false, versionNumber: 311 },
-        { brand: "MoYu", title: "WeiLong 3×3 V11", handle: "moyu-weilong-3x3-v11-magnetic", price: 19.95, variant: "Magnetic", edition: "v11", isMagLev: false, isBallCore: false, isUV: false, isSmart: false, versionNumber: 311 },
-        { brand: "MoYu", title: "WeiLong WR M 3×3 V10", handle: "moyu-weilong-wr-m-3x3-v10", price: 39.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v10", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 310 },
-        { brand: "MoYu", title: "WeiLong WR M 3×3 V9", handle: "moyu-weilong-wr-m-3x3-v9", price: 39.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated", edition: "v9", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 309 },
-        { brand: "MoYu", title: "Super WeiLong 3×3 V2", handle: "moyu-super-weilong-3x3-v2", price: 81.95, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v2", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 302 },
-        { brand: "MoYu", title: "RS3 M 3×3 V5", handle: "moyu-rs3-m-3x3-v5", price: 24.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated + Robot Box", edition: "v5", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 305 },
-        { brand: "MoYu", title: "RS3 M 3×3 V5", handle: "moyu-rs3-m-3x3-v5-magnetic", price: 8.95, variant: "Magnetic", edition: "v5", isMagLev: false, isBallCore: false, isUV: false, isSmart: false, versionNumber: 305 },
-        { brand: "MoYu", title: "RS3 M 3×3 V5 SE", handle: "moyu-rs3-m-3x3-v5-se", price: 27.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated", edition: "v5", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 305 },
-        { brand: "GAN", title: "GAN 17 MagDrive 3×3", handle: "gan-17-magdrive-3x3-magnetic-maglev-ball-core-uv-coated", price: 84.95, variant: "Magnetic, MagLev, Ball-Core, UV Coated", edition: "gan17", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 17 },
-        { brand: "GAN", title: "GAN 16 3×3 Max", handle: "gan-16-3x3-max", price: 84.95, variant: "Magnetic, MagLev, Core Magnets, UV Coated", edition: "gan16", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 16 },
-        { brand: "GAN", title: "GAN 16 ui 3×3 Max", handle: "gan-16-ui-3x3-max", price: 139.95, variant: "Magnetic, MagLev, Core Magnets, UV Coated, Bluetooth", edition: "gan16", isMagLev: true, isBallCore: true, isUV: true, isSmart: true, versionNumber: 16 },
-        { brand: "GAN", title: "GAN 11 Pro 3×3", handle: "gan-11-pro-3x3", price: 39.95, variant: "Magnetic, Core Magnets", edition: "gan11", isMagLev: false, isBallCore: true, isUV: false, isSmart: false, versionNumber: 11 }
+        { brand: "MoYu", title: "MoYu PB WR 3x3 (Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated)", handle: PB_WR_HANDLE, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v11", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong AI 3×3 V11 Guided Recovery Edition", handle: "moyu-weilong-ai-3x3-v11-guided-recovery-edition",, variant: "Magnetic, MagLev, Ball-Core, Bluetooth Smart Cube", edition: "v11", isMagLev: true, isBallCore: true, isUV: true, isSmart: true, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong 3×3 V11 18th Anniversary", handle: "moyu-weilong-3x3-v11-18th-anniversary",, variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v11", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong 3×3 V11", handle: "moyu-weilong-3x3-v11-magnetic-ball-core-uv-coated",, variant: "Magnetic, Ball-Core, UV Coated", edition: "v11", isMagLev: false, isBallCore: true, isUV: true, isSmart: false, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong 3×3 V11", handle: "moyu-weilong-3x3-v11-magnetic", variant: "Magnetic", edition: "v11", isMagLev: false, isBallCore: false, isUV: false, isSmart: false, versionNumber: 311 },
+        { brand: "MoYu", title: "WeiLong WR M 3×3 V10", handle: "moyu-weilong-wr-m-3x3-v10", variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v10", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 310 },
+        { brand: "MoYu", title: "WeiLong WR M 3×3 V9", handle: "moyu-weilong-wr-m-3x3-v9", variant: "Magnetic, MagLev, Ball-Core, UV Coated", edition: "v9", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 309 },
+        { brand: "MoYu", title: "Super WeiLong 3×3 V2", handle: "moyu-super-weilong-3x3-v2", variant: "Magnetic, MagLev, 20-Magnet Ball-Core, UV Coated", edition: "v2", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 302 },
+        { brand: "MoYu", title: "RS3 M 3×3 V5", handle: "moyu-rs3-m-3x3-v5", variant: "Magnetic, MagLev, Ball-Core, UV Coated + Robot Box", edition: "v5", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 305 },
+        { brand: "MoYu", title: "RS3 M 3×3 V5", handle: "moyu-rs3-m-3x3-v5-magnetic", variant: "Magnetic", edition: "v5", isMagLev: false, isBallCore: false, isUV: false, isSmart: false, versionNumber: 305 },
+        { brand: "MoYu", title: "RS3 M 3×3 V5 SE", handle: "moyu-rs3-m-3x3-v5-se", variant: "Magnetic, MagLev, Ball-Core, UV Coated", edition: "v5", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 305 },
+        { brand: "GAN", title: "GAN 17 MagDrive 3×3", handle: "gan-17-magdrive-3x3-magnetic-maglev-ball-core-uv-coated", variant: "Magnetic, MagLev, Ball-Core, UV Coated", edition: "gan17", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 17 },
+        { brand: "GAN", title: "GAN 16 3×3 Max", handle: "gan-16-3x3-max", variant: "Magnetic, MagLev, Core Magnets, UV Coated", edition: "gan16", isMagLev: true, isBallCore: true, isUV: true, isSmart: false, versionNumber: 16 },
+        { brand: "GAN", title: "GAN 16 ui 3×3 Max", handle: "gan-16-ui-3x3-max", variant: "Magnetic, MagLev, Core Magnets, UV Coated, Bluetooth", edition: "gan16", isMagLev: true, isBallCore: true, isUV: true, isSmart: true, versionNumber: 16 },
+        { brand: "GAN", title: "GAN 11 Pro 3×3", handle: "gan-11-pro-3x3", variant: "Magnetic, Core Magnets", edition: "gan11", isMagLev: false, isBallCore: true, isUV: false, isSmart: false, versionNumber: 11 }
     ];
 
     function logMsg(txt, isError = false) {
@@ -404,7 +404,7 @@
                     title: raw.title,
                     handle: raw.handle,
                     url: `${SCS}/products/${raw.handle}`,
-                    price: minPrice,
+                      minPrice,
                     ...meta,
                     stock: { type: "unknown", quantity: null, label: "Checking...", source: "Pending" }
                 });
@@ -448,7 +448,7 @@
             title: k.title,
             handle: k.handle,
             url: `${SCS}/products/${k.handle}`,
-            price: k.price,
+              k.price,
             ...parseMetadata(k.title, k.variant, k.brand),
             stock: { type: "unknown", quantity: null, label: "Checking...", source: "Pending" }
         }));
