@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { loadCatalog, normalizeProduct, normalizeSearch, type RawProduct } from '../shared/catalog.ts'
+import { applyInventory, loadCatalog, normalizeProduct, normalizeSearch, type RawProduct } from '../shared/catalog.ts'
+import { filterTitle, matchesStock, selectView } from '../shared/filters.ts'
 
 const product: RawProduct = { id: 1, handle: 'example', title: 'Example 3×3 V42', vendor: 'New Brand', variants: [{ price: '12.50', available: true }] }
 const normalize = (overrides: Partial<RawProduct> = {}) => normalizeProduct({ ...product, ...overrides }, 'https://example.com', 5)!
@@ -43,4 +44,28 @@ test('failed, malformed and repeated pages never return a partial catalog', asyn
 })
 test('search treats ball-core and ballcore, 3x3 and 3×3 equally', () => {
   assert.equal(normalizeSearch('Ball-Core 3×3'), normalizeSearch('ballcore 3x3'))
+})
+
+test('product detail inventory enriches counts without replacing AUD decimal prices with cents', () => {
+  const cube = applyInventory(normalize(), { ...product, variants: [{ title: 'Blue', price: 1250, available: true, inventory_quantity: 2, inventory_management: 'shopify' }, { title: 'Red', available: false, inventory_quantity: 0 }] }, 5)
+  assert.equal(cube.price, 12.5)
+  assert.equal(cube.quantity, 2)
+  assert.equal(cube.stock, 'low')
+  assert.equal(cube.variantStock?.[0]?.quantity, 2)
+  assert.ok(cube.stockCheckedAt)
+  const untracked = applyInventory(normalize(), { ...product, variants: [{ available: true, inventory_quantity: 0, inventory_management: null }] }, 5)
+  assert.equal(untracked.quantity, null)
+  assert.equal(untracked.stock, 'in')
+})
+test('favorites always opens all brands with previous filters cleared', () => {
+  assert.deepEqual(selectView('MoYu', true), { favoritesOnly: true, brand: '', stock: '', edition: '', query: '' })
+  assert.equal(selectView('GAN').favoritesOnly, false)
+})
+test('headings describe brand, stock, version and search; low stock excludes sold out and unknown quantities', () => {
+  assert.equal(filterTitle({ ...selectView('MoYu'), stock: 'low' }, 5), 'MoYu · Fewer than 5 in stock')
+  assert.equal(filterTitle(selectView('', true), 5), 'All starred favorites')
+  assert.equal(filterTitle({ ...selectView('GAN'), edition: 'V2', query: 'UV', stock: 'out' }, 5), 'GAN · Out of stock · V2 · Search: “UV”')
+  assert.equal(matchesStock(normalize(), 'low'), false)
+  assert.equal(matchesStock(normalize({ variants: [{ available: false, inventory_quantity: 0 }] }), 'low'), false)
+  assert.equal(matchesStock(normalize({ variants: [{ available: true, inventory_quantity: 4 }] }), 'low'), true)
 })

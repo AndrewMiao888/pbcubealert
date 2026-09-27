@@ -3,6 +3,7 @@ export interface RawVariant {
   price?: string | number | null
   available?: boolean
   inventory_quantity?: number | null
+  inventory_management?: string | null
 }
 export interface RawProduct {
   id?: string | number
@@ -27,8 +28,28 @@ export interface Cube {
   publishedAt: number
   stock: 'in' | 'low' | 'out' | 'unknown'
   quantity: number | null
+  variantStock?: { title: string; quantity: number | null; available: boolean | null }[]
+  stockCheckedAt?: string
 }
-export interface Catalog { products: Cube[]; fetchedAt: string; currency: string }
+export interface Catalog { products: Cube[]; fetchedAt: string; currency: string; stockFailures?: number }
+
+export function applyInventory(cube: Cube, detail: RawProduct, threshold: number): Cube {
+  if (detail.handle !== cube.handle || !Array.isArray(detail.variants) || !detail.variants.length) throw new Error('Invalid inventory response')
+  const variants = detail.variants.map(v => ({
+    ...v,
+    inventory_quantity: v.inventory_management === null ? null : v.inventory_quantity
+  }))
+  const normalized = normalizeProduct({ ...detail, product_type: '3x3', title: cube.title, variants }, cube.url, threshold)!
+  return {
+    ...cube, stock: normalized.stock, quantity: normalized.quantity,
+    variantStock: variants.map(v => ({
+      title: v.title && v.title !== 'Default Title' ? v.title : 'Standard',
+      quantity: typeof v.inventory_quantity === 'number' && Number.isFinite(v.inventory_quantity) ? Math.max(0, v.inventory_quantity) : null,
+      available: typeof v.available === 'boolean' ? v.available : null
+    })),
+    stockCheckedAt: new Date().toISOString()
+  }
+}
 
 export function normalizeSearch(value: string) {
   return value.toLowerCase().replace(/×/g, 'x').replace(/[^\p{L}\p{N}]/gu, '')
