@@ -20,7 +20,7 @@ For deployment, run `node .output/server/index.mjs` after building. Set environm
 
 ## Configuration
 
-Copy `.env.example` to `.env` to override the store URL, collection, displayed store name, feed currency, refresh interval, low-stock threshold or pagination limit. An empty `NUXT_COLLECTION_HANDLE` reads the whole store catalog and filters by 3x3 product type/title. Currency must match the store's JSON feed; changing the label does not convert prices. Auto-refresh runs while the page is visible, with a minimum interval of 30 seconds; use 0 to disable it.
+Copy `.env.example` to `.env` to override the store URL, collection, displayed store name, requested currency, refresh interval, low-stock threshold or pagination limit. Prices default to **AUD**: every catalog page requests `currency=AUD`, and the API verifies that the store accepts that currency using its cart currency response. The UI formats the currency returned with the catalog, and product links request that same currency. The store supplies the converted amounts; the app does not use a fixed exchange rate or relabel USD prices. An empty `NUXT_COLLECTION_HANDLE` reads the whole store catalog and filters by 3x3 product type/title. Auto-refresh runs while the page is visible, with a minimum interval of 30 seconds; use 0 to disable it.
 
 ## Data behavior
 

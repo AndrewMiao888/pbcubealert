@@ -7,6 +7,6 @@ export default defineNuxtConfig({
     storeUrl: 'https://speedcubeshop.com',
     collectionHandle: '3x3-speed-cubes',
     maxPages: 40,
-    public: { storeName: 'SpeedCubeShop', currency: 'USD', refreshSeconds: 300, lowStockThreshold: 5 }
+    public: { storeName: 'SpeedCubeShop', currency: 'AUD', refreshSeconds: 300, lowStockThreshold: 5 }
   }
 })

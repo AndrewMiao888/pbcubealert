@@ -24,11 +24,12 @@ const average = computed(() => {
   const prices = products.value.map(p => p.price).filter((p): p is number => p !== null)
   return prices.length ? prices.reduce((a, b) => a + b, 0) / prices.length : null
 })
+const priceCurrency = computed(() => catalog.value?.currency || config.currency)
 const currency = computed(() => {
-  try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: config.currency }) }
+  try { return new Intl.NumberFormat('en-AU', { style: 'currency', currency: priceCurrency.value, currencyDisplay: 'code' }) }
   catch { return null }
 })
-const money = (price: number | null) => price === null ? 'Price unavailable' : currency.value?.format(price) ?? `${price.toFixed(2)} ${config.currency}`
+const money = (price: number | null) => price === null ? 'Price unavailable' : currency.value?.format(price) ?? `${price.toFixed(2)} ${priceCurrency.value}`
 const visible = computed(() => {
   const terms = query.value.trim().split(/\s+/).map(normalizeSearch).filter(Boolean)
   const list = products.value.filter(p => (!brand.value || p.brand === brand.value)
@@ -135,7 +136,7 @@ onBeforeUnmount(() => clearInterval(timer))
         <label><span class="sr-only">Sort cubes</span><select v-model="sort"><option value="newest">Recently published</option><option value="stock">Availability first</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="name">Name: A–Z</option></select></label>
         <button @click="resetFilters">Clear filters</button>
       </div>
-      <div class="result-meta"><span>{{ visible.length }} results · Prices in {{ config.currency }}</span><span v-if="catalog">Last successful sync: {{ new Date(catalog.fetchedAt).toLocaleString() }}</span></div>
+      <div class="result-meta"><span>{{ visible.length }} results · Prices in {{ priceCurrency }}</span><span v-if="catalog">Last successful sync: {{ new Date(catalog.fetchedAt).toLocaleString() }}</span></div>
       <p class="inventory-note">Availability means the store accepts orders and may include preorders. Exact quantities and low-stock labels appear only when all variants report inventory. Check the product page for variant details.</p>
       <div class="grid" :aria-busy="pending">
         <article v-for="p in visible" :key="p.id" class="card">

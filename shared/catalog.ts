@@ -28,7 +28,7 @@ export interface Cube {
   stock: 'in' | 'low' | 'out' | 'unknown'
   quantity: number | null
 }
-export interface Catalog { products: Cube[]; fetchedAt: string }
+export interface Catalog { products: Cube[]; fetchedAt: string; currency: string }
 
 export function normalizeSearch(value: string) {
   return value.toLowerCase().replace(/×/g, 'x').replace(/[^\p{L}\p{N}]/gu, '')
