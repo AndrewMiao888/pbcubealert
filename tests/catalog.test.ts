@@ -4,7 +4,7 @@ import { applyInventory, loadCatalog, normalizeProduct, normalizeSearch, type Ra
 import { filterTitle, matchesStock, selectView } from '../shared/filters.ts'
 
 const product: RawProduct = { id: 1, handle: 'example', title: 'Example 3×3 V42', vendor: 'New Brand', variants: [{ price: '12.50', available: true }] }
-const normalize = (overrides: Partial<RawProduct> = {}) => normalizeProduct({ ...product, ...overrides }, 'https://example.com', 5)!
+const normalize = (overrides: Partial<RawProduct> = {}) => normalizeProduct({ ...product, ...overrides }, 'https://example.com', 'Example Store', 5)!
 test('new products, brands, editions and prices come from the feed', () => {
   const p = normalize()
   assert.equal(p.brand, 'New Brand')
@@ -12,7 +12,8 @@ test('new products, brands, editions and prices come from the feed', () => {
   assert.equal(p.price, 12.5)
   assert.equal(p.stock, 'in')
   assert.equal(p.quantity, null)
-  assert.equal(normalize({ title: 'Example 4x4' }), null)
+  assert.equal(normalize({ title: 'Example 4x4' })?.title, 'Example 4x4')
+  assert.equal(normalize({ title: 'Example 4x4' })?.storeName, 'Example Store')
 })
 test('missing price is not free, and valid zero prices are retained', () => {
   assert.equal(normalize({ variants: [{ price: null }] }).price, null)
@@ -33,14 +34,14 @@ test('availability handles sold-out, preorder and unknown variants', () => {
   assert.equal(normalize({ variants: [] }).stock, 'unknown')
 })
 test('pagination reads through the empty page and deduplicates', async () => {
-  const result = await loadCatalog(async page => ({ products: page === 1 ? [product] : page === 2 ? [product, { ...product, id: 2, handle: 'new' }] : [] }), 'https://example.com', 5, 4)
+  const result = await loadCatalog(async page => ({ products: page === 1 ? [product] : page === 2 ? [product, { ...product, id: 2, handle: 'new' }] : [] }), 'https://example.com', 'Example Store', 5, 4)
   assert.equal(result.length, 2)
 })
 test('failed, malformed and repeated pages never return a partial catalog', async () => {
-  await assert.rejects(loadCatalog(async page => { if (page === 2) throw new Error('offline'); return { products: [product] } }, 'https://example.com', 5, 4))
-  await assert.rejects(loadCatalog(async () => ({ products: [product] }), 'https://example.com', 5, 4), /repeated/)
-  await assert.rejects(loadCatalog(async () => ({} as { products: RawProduct[] }), 'https://example.com', 5, 4), /Invalid/)
-  await assert.rejects(loadCatalog(async () => ({ products: [product] }), 'https://example.com', 5, 1), /limit/)
+  await assert.rejects(loadCatalog(async page => { if (page === 2) throw new Error('offline'); return { products: [product] } }, 'https://example.com', 'Example Store', 5, 4))
+  await assert.rejects(loadCatalog(async () => ({ products: [product] }), 'https://example.com', 'Example Store', 5, 4), /repeated/)
+  await assert.rejects(loadCatalog(async () => ({} as { products: RawProduct[] }), 'https://example.com', 'Example Store', 5, 4), /Invalid/)
+  await assert.rejects(loadCatalog(async () => ({ products: [product] }), 'https://example.com', 'Example Store', 5, 1), /limit/)
 })
 test('search treats ball-core and ballcore, 3x3 and 3×3 equally', () => {
   assert.equal(normalizeSearch('Ball-Core 3×3'), normalizeSearch('ballcore 3x3'))

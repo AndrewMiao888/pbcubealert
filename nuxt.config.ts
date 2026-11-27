@@ -2,11 +2,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-09-27',
   devtools: { enabled: false },
   css: ['~/assets/main.css'],
-  app: { head: { title: '3x3 Stock Dashboard', htmlAttrs: { lang: 'en' } } },
+  app: { head: { title: 'Cube Stock Dashboard', htmlAttrs: { lang: 'en' } } },
   runtimeConfig: {
     storeUrl: 'https://speedcubeshop.com',
-    collectionHandle: '3x3-speed-cubes',
-    maxPages: 40,
-    public: { storeName: 'SpeedCubeShop', currency: 'AUD', refreshSeconds: 300, lowStockThreshold: 5 }
+    storeUrls: 'SpeedCubeShop|https://speedcubeshop.com,TheCubicle|https://www.thecubicle.com',
+    collectionHandle: '',
+    maxPages: 80,
+    public: { storeName: 'SpeedCubeShop + TheCubicle', currency: 'AUD', refreshSeconds: 300, lowStockThreshold: 5 }
   }
 })

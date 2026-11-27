@@ -21,7 +21,7 @@ const logs = ref<string[]>([])
 const brandSearch = ref('')
 const filterState = computed(() => ({ favoritesOnly: favoritesOnly.value, brand: brand.value, stock: stock.value, edition: edition.value, query: query.value }))
 const pageTitle = computed(() => filterTitle(filterState.value, Number(config.lowStockThreshold)))
-useHead(() => ({ title: `${pageTitle.value} | 3x3 Stock Dashboard` }))
+useHead(() => ({ title: `${pageTitle.value} | Cube Stock Dashboard` }))
 const products = computed(() => catalog.value?.products || [])
 const brands = computed(() => [...new Set(products.value.map(p => p.brand))].sort())
 const matchingBrands = computed(() => brands.value.filter(b => b.toLowerCase().includes(brandSearch.value.toLowerCase())))
@@ -48,7 +48,7 @@ const visible = computed(() => {
     && (!favoritesOnly.value || isFavorite(p))
     && matchesStock(p, stock.value)
     && (!edition.value || p.edition === edition.value)
-    && terms.every(t => normalizeSearch(`${p.title} ${p.brand} ${p.edition || ''} ${p.variants.join(' ')}`).includes(t)))
+    && terms.every(t => normalizeSearch(`${p.title} ${p.brand} ${p.storeName} ${p.edition || ''} ${p.variants.join(' ')}`).includes(t)))
   return list.sort((a, b) => {
     if (sort.value.startsWith('price')) {
       if (a.price === null) return b.price === null ? 0 : 1
@@ -101,11 +101,11 @@ async function refresh() {
     stockProgress.value = 0
     let failed = 0
     for (let start = 0; start < result.products.length && !disposed; start += 8) {
-      const handles = result.products.slice(start, start + 8).map(p => p.handle)
+      const items = result.products.slice(start, start + 8).map(p => ({ handle: p.handle, storeUrl: p.storeUrl }))
       try {
-        const batch = await $fetch<{ results: { handle: string; detail: RawProduct | null; checkedAt: string | null }[]; coolingDown: boolean }>('/api/inventory', { method: 'POST', body: { handles } })
+        const batch = await $fetch<{ results: { handle: string; storeUrl: string; detail: RawProduct | null; checkedAt: string | null }[]; coolingDown: boolean }>('/api/inventory', { method: 'POST', body: { items } })
         for (const item of batch.results) {
-          const index = catalog.value.products.findIndex(p => p.handle === item.handle)
+          const index = catalog.value.products.findIndex(p => p.handle === item.handle && p.storeUrl === item.storeUrl)
           if (!item.detail || index < 0) { failed++; continue }
           try {
             const updated = applyInventory(catalog.value.products[index]!, item.detail, Number(config.lowStockThreshold))
@@ -113,7 +113,7 @@ async function refresh() {
             catalog.value.products[index] = updated
           } catch { failed++ }
         }
-        stockProgress.value = Math.min(start + handles.length, result.products.length)
+        stockProgress.value = Math.min(start + items.length, result.products.length)
         if (batch.coolingDown) { failed += result.products.length - stockProgress.value; break }
       } catch { failed += result.products.length - start; break }
     }
@@ -140,14 +140,14 @@ onBeforeUnmount(() => { disposed = true; clearInterval(timer) })
 <template>
   <div class="layout">
     <aside>
-      <a class="logo" href="/">◈ 3x3 Stock Dashboard</a>
+      <a class="logo" href="/">◈ Cube Stock Dashboard</a>
       <div class="connection" :class="{ warning: error }" role="status">
         <strong>{{ pending ? 'Checking live inventory...' : error ? 'Connection issue' : catalog ? 'Catalog loaded' : 'Waiting to sync' }}</strong>
         <span>Product data from {{ config.storeName }}</span>
       </div>
       <nav aria-label="Catalog navigation">
         <h2>Browse</h2>
-        <button :class="{ selected: !brand && !favoritesOnly }" :aria-pressed="!brand && !favoritesOnly" @click="openView()"><span>All cubes</span><b>{{ products.length }}</b></button>
+        <button :class="{ selected: !brand && !favoritesOnly }" :aria-pressed="!brand && !favoritesOnly" @click="openView()"><span>All products</span><b>{{ products.length }}</b></button>
         <button class="favorites-nav" :class="{ selected: favoritesOnly }" :aria-pressed="favoritesOnly" @click="openView('', true)"><span>&#9733; Starred favorites</span><b>{{ favoriteCount }}</b></button>
         <h2>Shop by brand</h2>
         <label class="brand-search"><span class="sr-only">Find a brand</span><input v-model="brandSearch" type="search" placeholder="Find a brand..."></label>
@@ -159,12 +159,12 @@ onBeforeUnmount(() => { disposed = true; clearInterval(timer) })
     </aside>
     <main>
       <header>
-        <div><p class="eyebrow">{{ config.storeName }} / Catalog monitor</p><h1>{{ pageTitle }}</h1><p>{{ favoritesOnly ? 'Your saved cubes from every brand, together in one place.' : `Live prices in ${priceCurrency}. Find your next cube and check what is left.` }}</p></div>
+        <div><p class="eyebrow">{{ config.storeName }} / Catalog monitor</p><h1>{{ pageTitle }}</h1><p>{{ favoritesOnly ? 'Your saved products from every brand, together in one place.' : `Live prices in ${priceCurrency}. Find your next puzzle and check what is left.` }}</p></div>
         <button class="primary" :disabled="pending" @click="refresh">{{ pending ? 'Checking prices and stock...' : 'Refresh prices and stock' }}</button>
       </header>
       <p v-if="error" class="notice warning" role="alert">{{ error }}</p>
       <p v-if="storageWarning" class="notice warning" role="status">{{ storageWarning }}</p>
-      <div v-if="checkingStock" class="stock-progress" role="status"><span>Checking exact stock: {{ stockProgress }} / {{ products.length }} cubes. You can browse while this runs.</span><progress :value="stockProgress" :max="products.length || 1" aria-label="Inventory checks completed" /></div>
+      <div v-if="checkingStock" class="stock-progress" role="status"><span>Checking exact stock: {{ stockProgress }} / {{ products.length }} products. You can browse while this runs.</span><progress :value="stockProgress" :max="products.length || 1" aria-label="Inventory checks completed" /></div>
       <div class="stats">
         <section><h2>Cubes in this view</h2><strong>{{ catalog ? visible.length : '—' }}</strong></section>
         <section><h2>Available to order</h2><strong class="green">{{ catalog ? availableCount : '—' }}</strong></section>
@@ -172,19 +172,19 @@ onBeforeUnmount(() => { disposed = true; clearInterval(timer) })
         <section><h2>Average starting price</h2><strong>{{ catalog ? money(average) : '—' }}</strong></section>
       </div>
       <section v-if="!favoritesOnly" class="filter-panel" aria-label="Filter this view">
-        <div class="filter-heading"><div><h2>Filter {{ brand || 'all cubes' }}</h2><p>Choose a stock level to narrow this view.</p></div><button class="text-button" @click="resetFilters">Reset filters</button></div>
+        <div class="filter-heading"><div><h2>Filter {{ brand || 'all products' }}</h2><p>Choose a stock level to narrow this view.</p></div><button class="text-button" @click="resetFilters">Reset filters</button></div>
         <div class="stock-filters" aria-label="Stock level">
           <button v-for="item in stockOptions" :key="item.value" :class="{ active: stock === item.value }" :aria-pressed="stock === item.value" @click="stock = item.value"><span>{{ item.label }}</span><b>{{ stockCount(item.value) }}</b></button>
         </div>
         <label v-if="editions.length" class="edition-select">Version <select v-model="edition"><option value="">All versions</option><option v-for="item in editions" :key="item" :value="item">{{ item }}</option></select></label>
       </section>
       <div class="toolbar">
-        <label class="search"><span class="sr-only">Search cubes</span><input v-model="query" type="search" placeholder="Search name, brand, or variant…"></label>
+        <label class="search"><span class="sr-only">Search products</span><input v-model="query" type="search" placeholder="Search name, brand, store, or variant…"></label>
         <label><span class="sr-only">Sort cubes</span><select v-model="sort"><option value="newest">Recently published</option><option value="stock">Availability first</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="name">Name: A–Z</option></select></label>
         <button v-if="query || edition || stock" @click="resetFilters">Clear filters</button>
       </div>
       <div class="result-meta"><span>{{ visible.length }} results · Prices in {{ priceCurrency }}</span><span v-if="catalog">Last successful sync: {{ new Date(catalog.fetchedAt).toLocaleString() }}</span></div>
-      <div class="inventory-note"><strong>{{ knownQuantityCount }} of {{ viewProducts.length }} cubes in {{ favoritesOnly ? 'your favorites' : brand || 'the catalog' }} have exact stock counts.</strong> Counts are totals across variants. Fewer than {{ config.lowStockThreshold }} means 1 to {{ Number(config.lowStockThreshold) - 1 }} units; sold-out cubes have their own filter.
+      <div class="inventory-note"><strong>{{ knownQuantityCount }} of {{ viewProducts.length }} products in {{ favoritesOnly ? 'your favorites' : brand || 'the catalog' }} have exact stock counts.</strong> Counts are totals across variants. Fewer than {{ config.lowStockThreshold }} means 1 to {{ Number(config.lowStockThreshold) - 1 }} units; sold-out products have their own filter.
         <span v-if="catalog?.stockFailures"> {{ catalog.stockFailures }} product stock checks failed; availability from the catalog is shown for those products.</span>
       </div>
       <div class="grid" :aria-busy="pending">
@@ -197,9 +197,9 @@ onBeforeUnmount(() => { disposed = true; clearInterval(timer) })
           <p v-if="p.edition" class="version">{{ p.edition }}</p>
           <details v-if="p.variantStock?.length" class="variant-stock"><summary>Stock by variant <span>{{ p.variantStock.length }}</span></summary><ul><li v-for="(variant, index) in p.variantStock" :key="index"><span>{{ variant.title }}</span><strong>{{ variant.quantity === null ? 'Quantity unknown' : `${variant.quantity} left` }}</strong><small>{{ variant.available === false ? 'Sold out' : variant.available === true ? 'Available to order' : 'Availability unknown' }}</small></li></ul></details>
           <details v-else-if="p.variants.length"><summary>{{ p.variants.length }} listed {{ p.variants.length === 1 ? 'variant' : 'variants' }}</summary><ul><li v-for="variant in p.variants" :key="variant">{{ variant }}</li></ul></details>
-          <div class="card-bottom"><div class="price"><span>From</span><strong>{{ money(p.price) }}</strong></div><a :href="p.url" target="_blank" rel="noopener noreferrer">View on {{ config.storeName }} ↗</a></div>
+          <div class="card-bottom"><div class="price"><span>From</span><strong>{{ money(p.price) }}</strong></div><a :href="p.url" target="_blank" rel="noopener noreferrer">View on {{ p.storeName }} ↗</a></div>
         </article>
-        <div v-if="!visible.length" class="empty" role="status">{{ pending && !catalog ? 'Loading prices and checking stock for each cube...' : !catalog ? 'The catalog is not available yet.' : !products.length ? 'The store returned no 3x3 products.' : stock === 'low' && knownQuantityCount < viewProducts.length ? 'No confirmed low-stock cubes in this view. Products with unreported quantities cannot be included.' : favoritesOnly && !favoriteCount ? 'No favorites yet. Use the star button on a cube to save it here.' : 'No cubes match these filters.' }}</div>
+        <div v-if="!visible.length" class="empty" role="status">{{ pending && !catalog ? 'Loading prices and checking stock for each product...' : !catalog ? 'The catalog is not available yet.' : !products.length ? 'The stores returned no products.' : stock === 'low' && knownQuantityCount < viewProducts.length ? 'No confirmed low-stock products in this view. Products with unreported quantities cannot be included.' : favoritesOnly && !favoriteCount ? 'No favorites yet. Use the star button on a product to save it here.' : 'No products match these filters.' }}</div>
       </div>
       <details class="activity"><summary>Sync activity</summary><button @click="logs = []">Clear log</button><p v-for="(line, index) in logs" :key="index">{{ line }}</p></details>
     </main>

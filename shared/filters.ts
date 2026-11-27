@@ -9,5 +9,5 @@ export function matchesStock(product: Cube, stock: string) {
 }
 export function filterTitle(filters: Filters, threshold: number) {
   const labels: Record<string, string> = { in: 'Available to order', low: `Fewer than ${threshold} in stock`, out: 'Out of stock', unknown: 'Availability unknown', unreported: 'Quantity not reported' }
-  return [filters.favoritesOnly ? 'All starred favorites' : filters.brand || 'All 3x3 cubes', labels[filters.stock], filters.edition, filters.query.trim() ? `Search: “${filters.query.trim()}”` : ''].filter(Boolean).join(' · ')
+  return [filters.favoritesOnly ? 'All starred favorites' : filters.brand || 'All products', labels[filters.stock], filters.edition, filters.query.trim() ? `Search: “${filters.query.trim()}”` : ''].filter(Boolean).join(' · ')
 }

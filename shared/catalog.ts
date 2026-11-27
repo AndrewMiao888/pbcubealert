@@ -19,6 +19,8 @@ export interface Cube {
   id: string
   handle: string
   title: string
+  storeName: string
+  storeUrl: string
   brand: string
   url: string
   image: string | null
@@ -39,7 +41,7 @@ export function applyInventory(cube: Cube, detail: RawProduct, threshold: number
     ...v,
     inventory_quantity: v.inventory_management === null ? null : v.inventory_quantity
   }))
-  const normalized = normalizeProduct({ ...detail, product_type: '3x3', title: cube.title, variants }, cube.url, threshold)!
+  const normalized = normalizeProduct({ ...detail, product_type: 'Puzzle', title: cube.title, variants }, cube.storeUrl, cube.storeName, threshold)!
   return {
     ...cube, stock: normalized.stock, quantity: normalized.quantity,
     variantStock: variants.map(v => ({
@@ -55,10 +57,8 @@ export function normalizeSearch(value: string) {
   return value.toLowerCase().replace(/×/g, 'x').replace(/[^\p{L}\p{N}]/gu, '')
 }
 
-export function normalizeProduct(raw: RawProduct, storeUrl: string, lowThreshold: number): Cube | null {
+export function normalizeProduct(raw: RawProduct, storeUrl: string, storeName: string, lowThreshold: number): Cube | null {
   if (!raw.handle || !raw.title) return null
-  const dimension = /(?:^|\D)3\s*[x×]\s*3(?:\D|$)/i
-  if (!dimension.test(raw.product_type || raw.title)) return null
   const variants = Array.isArray(raw.variants) ? raw.variants : []
   const prices = variants.map(v => v.price === null || v.price === undefined || v.price === '' ? NaN : Number(v.price))
     .filter(p => Number.isFinite(p) && p >= 0)
@@ -77,8 +77,10 @@ export function normalizeProduct(raw: RawProduct, storeUrl: string, lowThreshold
     const url = new URL(raw.images?.[0]?.src || '', storeUrl)
     if (raw.images?.[0]?.src && ['https:', 'http:'].includes(url.protocol)) image = url.href
   } catch { /* Invalid images are omitted. */ }
+  const origin = new URL(storeUrl)
   return {
-    id: String(raw.id ?? raw.handle), handle: raw.handle, title: raw.title,
+    id: `${origin.hostname}:${raw.id ?? raw.handle}`, handle: raw.handle, title: raw.title,
+    storeName, storeUrl: origin.origin,
     brand: raw.vendor?.trim() || 'Unspecified brand',
     url: new URL(`/products/${encodeURIComponent(raw.handle)}`, storeUrl).href,
     image, edition: edition ? `V${Number(edition)}` : null,
@@ -88,7 +90,7 @@ export function normalizeProduct(raw: RawProduct, storeUrl: string, lowThreshold
   }
 }
 
-export async function loadCatalog(fetchPage: (page: number) => Promise<{ products: RawProduct[] }>, storeUrl: string, threshold: number, maxPages: number): Promise<Cube[]> {
+export async function loadCatalog(fetchPage: (page: number) => Promise<{ products: RawProduct[] }>, storeUrl: string, storeName: string, threshold: number, maxPages: number): Promise<Cube[]> {
   const products = new Map<string, Cube>()
   const seen = new Set<string>()
   for (let page = 1; page <= maxPages; page++) {
@@ -101,8 +103,8 @@ export async function loadCatalog(fetchPage: (page: number) => Promise<{ product
       if (!key || seen.has(key)) continue
       seen.add(key)
       newItems++
-      const product = normalizeProduct(raw, storeUrl, threshold)
-      if (product) products.set(product.handle, product)
+      const product = normalizeProduct(raw, storeUrl, storeName, threshold)
+      if (product) products.set(product.id, product)
     }
     if (!newItems) throw new Error('Catalog pagination repeated a page')
   }

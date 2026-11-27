@@ -8,17 +8,41 @@ const lanes: Promise<unknown>[] = [Promise.resolve(), Promise.resolve()]
 let nextLane = 0
 let cooldownUntil = 0
 
+interface InventoryItem { handle: string; storeUrl?: string }
+function configuredOrigins(config: ReturnType<typeof useRuntimeConfig>) {
+  return String(config.storeUrls || config.storeUrl).split(',').map((entry) => {
+    const value = (entry.includes('|') ? entry.split('|', 2)[1] : entry) || ''
+    return new URL(value.trim()).origin
+  })
+}
+
 export default defineEventHandler(async (event) => {
-  const body = await readBody<{ handles?: unknown }>(event)
-  if (!Array.isArray(body?.handles) || body.handles.length > 8 || !body.handles.every(h => typeof h === 'string' && /^[a-z0-9][a-z0-9-]{0,250}$/.test(h))) {
-    throw createError({ statusCode: 400, statusMessage: 'Provide up to eight valid product handles.' })
+  const body = await readBody<{ handles?: unknown; items?: unknown }>(event)
+  const rawItems = Array.isArray(body?.items) ? body.items : Array.isArray(body?.handles) ? body.handles : []
+  if (rawItems.length > 8) {
+    throw createError({ statusCode: 400, statusMessage: 'Provide up to eight valid products.' })
   }
   const config = useRuntimeConfig(event)
-  const origin = new URL(config.storeUrl)
-  const results = await Promise.all([...new Set(body.handles as string[])].map(async (handle) => {
-    const key = `${origin.origin}/${handle}`
+  const allowedOrigins = new Set(configuredOrigins(config))
+  const defaultOrigin = new URL(config.storeUrl).origin
+  const items: InventoryItem[] = rawItems.map((item) => typeof item === 'string' ? { handle: item } : item as InventoryItem)
+  if (!items.length || !items.every(item => item && typeof item.handle === 'string' && /^[a-z0-9][a-z0-9-]{0,250}$/.test(item.handle))) {
+    throw createError({ statusCode: 400, statusMessage: 'Provide up to eight valid products.' })
+  }
+  const unique = [...new Map(items.map((item) => {
+    let origin = defaultOrigin
+    try {
+      if (item.storeUrl) origin = new URL(item.storeUrl).origin
+    } catch {
+      throw createError({ statusCode: 400, statusMessage: 'Unknown product store.' })
+    }
+    if (!allowedOrigins.has(origin)) throw createError({ statusCode: 400, statusMessage: 'Unknown product store.' })
+    return [`${origin}/${item.handle}`, { handle: item.handle, origin }]
+  })).values()]
+  const results = await Promise.all(unique.map(async ({ handle, origin }) => {
+    const key = `${origin}/${handle}`
     const stored = cache.get(key)
-    if (stored && stored.expires > Date.now()) return { handle, detail: stored.detail, checkedAt: stored.checkedAt }
+    if (stored && stored.expires > Date.now()) return { handle, storeUrl: origin, detail: stored.detail, checkedAt: stored.checkedAt }
     try {
       let request = pending.get(key)
       if (!request) {
@@ -47,8 +71,8 @@ export default defineEventHandler(async (event) => {
         void request.finally(() => pending.delete(key)).catch(() => undefined)
       }
       const result = await request
-      return { handle, ...result }
-    } catch { return { handle, detail: null, checkedAt: null } }
+      return { handle, storeUrl: origin, ...result }
+    } catch { return { handle, storeUrl: origin, detail: null, checkedAt: null } }
   }))
   setHeader(event, 'Cache-Control', 'no-store')
   return { results, coolingDown: Date.now() < cooldownUntil }
