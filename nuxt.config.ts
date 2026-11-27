@@ -8,6 +8,6 @@ export default defineNuxtConfig({
     storeUrls: 'SpeedCubeShop|https://speedcubeshop.com,TheCubicle|https://www.thecubicle.com',
     collectionHandle: '',
     maxPages: 200,
-    public: { storeName: 'SpeedCubeShop + TheCubicle', currency: 'AUD', refreshSeconds: 300, lowStockThreshold: 5 }
+    public: { storeName: 'SpeedCubeShop + TheCubicle', currency: 'USD', refreshSeconds: 300, lowStockThreshold: 5 }
   }
 })

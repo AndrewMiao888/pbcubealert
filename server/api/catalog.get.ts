@@ -12,21 +12,30 @@ function configuredStores(config: ReturnType<typeof useRuntimeConfig>) {
   })
 }
 
+async function acceptedCurrency(origin: URL, currency: string) {
+  const cart = await $fetch<{ currency?: string }>(new URL('/cart.js', origin).href, {
+    query: { currency }, responseType: 'json', timeout: 20000, retry: 1
+  })
+  return String(cart.currency || '').trim().toUpperCase()
+}
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   setHeader(event, 'Cache-Control', 'no-store')
   try {
     const stores = configuredStores(config)
-    const currency = config.public.currency.trim().toUpperCase()
+    const requestedCurrency = config.public.currency.trim().toUpperCase()
     const collection = config.collectionHandle.trim()
     const maxPages = Number(config.maxPages)
     if (!Number.isInteger(maxPages) || maxPages < 1) throw new Error('Invalid page limit')
+    let currency = requestedCurrency
+    const requestedSupport = await Promise.all(stores.map(async store => ({ ...store, currency: await acceptedCurrency(store.origin, requestedCurrency) })))
+    if (requestedSupport.some(store => store.currency !== requestedCurrency)) {
+      const usdSupport = await Promise.all(stores.map(async store => ({ ...store, currency: await acceptedCurrency(store.origin, 'USD') })))
+      if (usdSupport.every(store => store.currency === 'USD')) currency = 'USD'
+      else throw new Error(`Not every store accepts ${requestedCurrency}, and USD is not available across all stores`)
+    }
     const loadedStores = await Promise.all(stores.map(async ({ name, origin }) => {
-      // Confirm each store supports the requested currency rather than relabeling its base prices.
-      const cart = await $fetch<{ currency: string }>(new URL('/cart.js', origin).href, {
-        query: { currency }, responseType: 'json', timeout: 20000, retry: 1
-      })
-      if (cart.currency !== currency) throw new Error(`${name} did not accept the requested currency`)
       const url = new URL(collection ? `/collections/${encodeURIComponent(collection)}/products.json` : '/products.json', origin)
       const catalog = await loadCatalog(
         page => $fetch<{ products: RawProduct[] }>(url.href, { query: { limit: 250, page, currency }, timeout: 20000, retry: 1 }),
