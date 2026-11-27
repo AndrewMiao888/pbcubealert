@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { applyInventory, loadCatalog, normalizeProduct, normalizeSearch, type RawProduct } from '../shared/catalog.ts'
+import { applyInventory, loadCatalog, normalizeProduct, normalizeSearch, productMatchKey, type RawProduct } from '../shared/catalog.ts'
 import { filterTitle, matchesStock, selectView } from '../shared/filters.ts'
 
 const product: RawProduct = { id: 1, handle: 'example', title: 'Example 3×3 V42', vendor: 'New Brand', variants: [{ price: '12.50', available: true }] }
@@ -35,7 +35,8 @@ test('availability handles sold-out, preorder and unknown variants', () => {
 })
 test('pagination reads through the empty page and deduplicates', async () => {
   const result = await loadCatalog(async page => ({ products: page === 1 ? [product] : page === 2 ? [product, { ...product, id: 2, handle: 'new' }] : [] }), 'https://example.com', 'Example Store', 5, 4)
-  assert.equal(result.length, 2)
+  assert.equal(result.products.length, 2)
+  assert.equal(result.pages, 2)
 })
 test('failed, malformed and repeated pages never return a partial catalog', async () => {
   await assert.rejects(loadCatalog(async page => { if (page === 2) throw new Error('offline'); return { products: [product] } }, 'https://example.com', 'Example Store', 5, 4))
@@ -45,6 +46,7 @@ test('failed, malformed and repeated pages never return a partial catalog', asyn
 })
 test('search treats ball-core and ballcore, 3x3 and 3×3 equally', () => {
   assert.equal(normalizeSearch('Ball-Core 3×3'), normalizeSearch('ballcore 3x3'))
+  assert.equal(productMatchKey({ brand: 'GAN', title: 'GAN 12 MagLev Stickerless' }), productMatchKey({ brand: 'GAN', title: 'GAN 12 MagLev Color' }))
 })
 
 test('product detail inventory enriches counts without replacing AUD decimal prices with cents', () => {

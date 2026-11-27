@@ -33,7 +33,8 @@ export interface Cube {
   variantStock?: { title: string; quantity: number | null; available: boolean | null }[]
   stockCheckedAt?: string
 }
-export interface Catalog { products: Cube[]; fetchedAt: string; currency: string; stockFailures?: number }
+export interface StoreSummary { name: string; url: string; products: number; pages: number }
+export interface Catalog { products: Cube[]; fetchedAt: string; currency: string; stockFailures?: number; stores?: StoreSummary[] }
 
 export function applyInventory(cube: Cube, detail: RawProduct, threshold: number): Cube {
   if (detail.handle !== cube.handle || !Array.isArray(detail.variants) || !detail.variants.length) throw new Error('Invalid inventory response')
@@ -55,6 +56,10 @@ export function applyInventory(cube: Cube, detail: RawProduct, threshold: number
 
 export function normalizeSearch(value: string) {
   return value.toLowerCase().replace(/×/g, 'x').replace(/[^\p{L}\p{N}]/gu, '')
+}
+
+export function productMatchKey(product: Pick<Cube, 'title' | 'brand'>) {
+  return normalizeSearch(`${product.brand} ${product.title}`.replace(/\b(pre[-\s]?order|limited|edition|magnetic|stickerless|stickered|black|white|primary|color|colour)\b/gi, ''))
 }
 
 export function normalizeProduct(raw: RawProduct, storeUrl: string, storeName: string, lowThreshold: number): Cube | null {
@@ -90,13 +95,13 @@ export function normalizeProduct(raw: RawProduct, storeUrl: string, storeName: s
   }
 }
 
-export async function loadCatalog(fetchPage: (page: number) => Promise<{ products: RawProduct[] }>, storeUrl: string, storeName: string, threshold: number, maxPages: number): Promise<Cube[]> {
+export async function loadCatalog(fetchPage: (page: number) => Promise<{ products: RawProduct[] }>, storeUrl: string, storeName: string, threshold: number, maxPages: number): Promise<{ products: Cube[]; pages: number }> {
   const products = new Map<string, Cube>()
   const seen = new Set<string>()
   for (let page = 1; page <= maxPages; page++) {
     const data = await fetchPage(page)
     if (!data || !Array.isArray(data.products)) throw new Error('Invalid catalog response')
-    if (!data.products.length) return [...products.values()]
+    if (!data.products.length) return { products: [...products.values()], pages: page - 1 }
     let newItems = 0
     for (const raw of data.products) {
       const key = String(raw.id ?? raw.handle ?? '')

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { applyInventory, normalizeSearch, type Catalog, type Cube, type RawProduct } from '#shared/catalog'
+import { applyInventory, normalizeSearch, productMatchKey, type Catalog, type Cube, type RawProduct } from '#shared/catalog'
 import { filterTitle, matchesStock, selectView } from '#shared/filters'
 
 const config = useRuntimeConfig().public
@@ -36,6 +36,41 @@ const average = computed(() => {
   const prices = visible.value.map(p => p.price).filter((p): p is number => p !== null)
   return prices.length ? prices.reduce((a, b) => a + b, 0) / prices.length : null
 })
+const storeSummaries = computed(() => catalog.value?.stores || [])
+const timeline = computed(() => {
+  const buckets = new Map<string, { label: string; time: number; count: number; products: Cube[] }>()
+  for (const product of products.value) {
+    if (!product.publishedAt) continue
+    const date = new Date(product.publishedAt)
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+    const label = date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
+    const bucket = buckets.get(key) || { label, time: Date.UTC(date.getFullYear(), date.getMonth(), 1), count: 0, products: [] }
+    bucket.count++
+    if (bucket.products.length < 3) bucket.products.push(product)
+    buckets.set(key, bucket)
+  }
+  return [...buckets.values()].sort((a, b) => b.time - a.time).slice(0, 14)
+})
+const priceComparisons = computed(() => {
+  const groups = new Map<string, Cube[]>()
+  for (const product of products.value) {
+    if (product.price === null) continue
+    const key = productMatchKey(product)
+    groups.set(key, [...(groups.get(key) || []), product])
+  }
+  return [...groups.values()]
+    .map(group => {
+      const byStore = [...new Map(group.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity)).map(product => [product.storeName, product])).values()]
+      if (byStore.length < 2) return null
+      const sorted = byStore.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity))
+      const cheapest = sorted[0]!
+      const priciest = sorted[sorted.length - 1]!
+      return { title: cheapest.title, cheapest, priciest, products: sorted, spread: (priciest.price ?? 0) - (cheapest.price ?? 0) }
+    })
+    .filter((item): item is { title: string; cheapest: Cube; priciest: Cube; products: Cube[]; spread: number } => !!item && item.spread > 0)
+    .sort((a, b) => b.spread - a.spread)
+    .slice(0, 8)
+})
 const priceCurrency = computed(() => catalog.value?.currency || config.currency)
 const currency = computed(() => {
   try { return new Intl.NumberFormat('en-AU', { style: 'currency', currency: priceCurrency.value, currencyDisplay: 'code' }) }
@@ -59,6 +94,7 @@ const visible = computed(() => {
       const rank = { in: 0, low: 1, out: 2, unknown: 3 }
       return rank[a.stock] - rank[b.stock] || (b.quantity ?? -1) - (a.quantity ?? -1)
     }
+    if (sort.value === 'oldest') return (a.publishedAt - b.publishedAt) || a.title.localeCompare(b.title)
     return (sort.value === 'newest' ? b.publishedAt - a.publishedAt : 0) || a.title.localeCompare(b.title)
   })
 })
@@ -166,11 +202,24 @@ onBeforeUnmount(() => { disposed = true; clearInterval(timer) })
       <p v-if="storageWarning" class="notice warning" role="status">{{ storageWarning }}</p>
       <div v-if="checkingStock" class="stock-progress" role="status"><span>Checking exact stock: {{ stockProgress }} / {{ products.length }} products. You can browse while this runs.</span><progress :value="stockProgress" :max="products.length || 1" aria-label="Inventory checks completed" /></div>
       <div class="stats">
-        <section><h2>Cubes in this view</h2><strong>{{ catalog ? visible.length : '—' }}</strong></section>
+        <section><h2>Products in this view</h2><strong>{{ catalog ? visible.length : '—' }}</strong></section>
         <section><h2>Available to order</h2><strong class="green">{{ catalog ? availableCount : '—' }}</strong></section>
         <section><h2>Exact stock counts</h2><strong>{{ catalog ? visible.filter(p => p.quantity !== null).length : '—' }}</strong></section>
         <section><h2>Average starting price</h2><strong>{{ catalog ? money(average) : '—' }}</strong></section>
       </div>
+      <section v-if="storeSummaries.length" class="source-panel" aria-label="Catalog extraction coverage">
+        <div>
+          <h2>Extraction coverage</h2>
+          <p>Whole-store public feeds are read until an empty page is reached. Products unpublished from those feeds are not exposed by the stores.</p>
+        </div>
+        <div class="source-grid">
+          <article v-for="store in storeSummaries" :key="store.url">
+            <strong>{{ store.products }}</strong>
+            <span>{{ store.name }}</span>
+            <small>{{ store.pages }} feed pages scanned</small>
+          </article>
+        </div>
+      </section>
       <section v-if="!favoritesOnly" class="filter-panel" aria-label="Filter this view">
         <div class="filter-heading"><div><h2>Filter {{ brand || 'all products' }}</h2><p>Choose a stock level to narrow this view.</p></div><button class="text-button" @click="resetFilters">Reset filters</button></div>
         <div class="stock-filters" aria-label="Stock level">
@@ -180,10 +229,29 @@ onBeforeUnmount(() => { disposed = true; clearInterval(timer) })
       </section>
       <div class="toolbar">
         <label class="search"><span class="sr-only">Search products</span><input v-model="query" type="search" placeholder="Search name, brand, store, or variant…"></label>
-        <label><span class="sr-only">Sort cubes</span><select v-model="sort"><option value="newest">Recently published</option><option value="stock">Availability first</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="name">Name: A–Z</option></select></label>
+        <label><span class="sr-only">Sort products</span><select v-model="sort"><option value="newest">Recently released</option><option value="oldest">Oldest releases</option><option value="stock">Availability first</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="name">Name: A–Z</option></select></label>
         <button v-if="query || edition || stock" @click="resetFilters">Clear filters</button>
       </div>
       <div class="result-meta"><span>{{ visible.length }} results · Prices in {{ priceCurrency }}</span><span v-if="catalog">Last successful sync: {{ new Date(catalog.fetchedAt).toLocaleString() }}</span></div>
+      <section v-if="priceComparisons.length || timeline.length" class="insights" aria-label="Catalog insights">
+        <div v-if="priceComparisons.length" class="comparison-panel">
+          <div class="section-heading"><h2>SCS vs TheCubicle price matches</h2><p>Matched by normalized brand and title from the live feeds.</p></div>
+          <article v-for="item in priceComparisons" :key="item.cheapest.id" class="comparison-row">
+            <div><h3>{{ item.title }}</h3><p>{{ item.products.map(p => `${p.storeName}: ${money(p.price)}`).join(' / ') }}</p></div>
+            <strong>{{ item.cheapest.storeName }} cheaper by {{ money(item.spread) }}</strong>
+          </article>
+        </div>
+        <div v-if="timeline.length" class="timeline-panel">
+          <div class="section-heading"><h2>Release timeline</h2><p>Based on each store feed's published date.</p></div>
+          <ol>
+            <li v-for="bucket in timeline" :key="bucket.time">
+              <time>{{ bucket.label }}</time>
+              <span><strong>{{ bucket.count }}</strong> products</span>
+              <small>{{ bucket.products.map(p => p.title).join(' / ') }}</small>
+            </li>
+          </ol>
+        </div>
+      </section>
       <div class="inventory-note"><strong>{{ knownQuantityCount }} of {{ viewProducts.length }} products in {{ favoritesOnly ? 'your favorites' : brand || 'the catalog' }} have exact stock counts.</strong> Counts are totals across variants. Fewer than {{ config.lowStockThreshold }} means 1 to {{ Number(config.lowStockThreshold) - 1 }} units; sold-out products have their own filter.
         <span v-if="catalog?.stockFailures"> {{ catalog.stockFailures }} product stock checks failed; availability from the catalog is shown for those products.</span>
       </div>
@@ -194,6 +262,7 @@ onBeforeUnmount(() => { disposed = true; clearInterval(timer) })
           <span class="badge" :class="p.stock">{{ stockLabel(p) }}</span>
           <p class="quantity-detail">{{ p.quantity === null ? 'Exact quantity not reported' : `${p.quantity} units across all variants` }}<span v-if="p.stockCheckedAt"> Checked {{ new Date(p.stockCheckedAt).toLocaleTimeString() }}</span></p>
           <h2>{{ p.title }}</h2>
+          <p class="release-date">{{ p.publishedAt ? `Released ${new Date(p.publishedAt).toLocaleDateString()}` : 'Release date not reported' }} by {{ p.storeName }}</p>
           <p v-if="p.edition" class="version">{{ p.edition }}</p>
           <details v-if="p.variantStock?.length" class="variant-stock"><summary>Stock by variant <span>{{ p.variantStock.length }}</span></summary><ul><li v-for="(variant, index) in p.variantStock" :key="index"><span>{{ variant.title }}</span><strong>{{ variant.quantity === null ? 'Quantity unknown' : `${variant.quantity} left` }}</strong><small>{{ variant.available === false ? 'Sold out' : variant.available === true ? 'Available to order' : 'Availability unknown' }}</small></li></ul></details>
           <details v-else-if="p.variants.length"><summary>{{ p.variants.length }} listed {{ p.variants.length === 1 ? 'variant' : 'variants' }}</summary><ul><li v-for="variant in p.variants" :key="variant">{{ variant }}</li></ul></details>

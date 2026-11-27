@@ -20,7 +20,7 @@ const request = handles => fetch('http://127.0.0.1:3188/api/inventory', {
 try {
   const home = await fetch('http://127.0.0.1:3188')
   assert.equal(home.status, 200)
-  assert.match(await home.text(), /All 3x3 cubes/)
+  assert.match(await home.text(), /All products/)
   assert.equal((await request(['../../invalid'])).status, 400)
   const first = await (await request(['sample-cube'])).json()
   assert.equal(first.results[0].detail.variants[0].inventory_quantity, 3)
